@@ -1,0 +1,16 @@
+[
+{
+  "modid": "timezone",
+  "name": "TimeZone",
+  "description": "A mod providing time zone.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["ustc_zzzz"],
+  "credits": "Mojang AB, and the Forge and FML guys. ",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
