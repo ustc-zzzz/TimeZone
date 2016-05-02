@@ -16,7 +16,7 @@ public class TimeZone
     public static final String MODID = "timezone";
     public static final String VERSION = "@version@";
 
-    public static final Logger Logger = LogManager.getLogger("TimeZone");
+    public static final Logger logger = LogManager.getLogger("TimeZone");
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -28,7 +28,7 @@ public class TimeZone
     public void init(FMLInitializationEvent event)
     {
         // some example code
-        TimeZone.Logger.info("DIRT BLOCK >> " + Blocks.dirt.getUnlocalizedName());
+        TimeZone.logger.info("DIRT BLOCK >> " + Blocks.dirt.getUnlocalizedName());
     }
     
     @EventHandler

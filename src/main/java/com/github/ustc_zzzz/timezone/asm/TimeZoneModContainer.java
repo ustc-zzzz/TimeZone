@@ -2,9 +2,6 @@ package com.github.ustc_zzzz.timezone.asm;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Stack;
-
-import javax.vecmath.Tuple2i;
 
 import org.apache.logging.log4j.LogManager;
 
@@ -17,8 +14,6 @@ import net.minecraftforge.fml.relauncher.IFMLCallHook;
 
 public class TimeZoneModContainer extends DummyModContainer implements IFMLCallHook
 {
-    private static Stack<Tuple2i> stack;
-    
     public TimeZoneModContainer()
     {
         super(TimeZoneModContainer.newModMetadata());
@@ -39,7 +34,6 @@ public class TimeZoneModContainer extends DummyModContainer implements IFMLCallH
     @Override
     public Void call() throws Exception
     {
-        TimeZoneModContainer.stack = new Stack<Tuple2i>();
         LogManager.getLogger("TimeZone").info("Processing coremod setup. ");
         return null;
     }
@@ -54,10 +48,5 @@ public class TimeZoneModContainer extends DummyModContainer implements IFMLCallH
     public boolean registerBus(EventBus bus, LoadController controller)
     {
         return true;
-    }
-
-    static Stack<Tuple2i> getStack()
-    {
-        return stack;
     }
 }

@@ -14,7 +14,7 @@ public class TimeZoneCore implements IFMLLoadingPlugin
     {
         return new String[]
         {
-                "com.github.ustc_zzzz.timezone.asm.TimeZoneTimeTransformer"
+                "com.github.ustc_zzzz.timezone.asm.TimeZoneTimeDelegateTransformer"
         };
     }
 
