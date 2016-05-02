@@ -13,15 +13,15 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.0"
+version = mod_version
 group= "com.github.ustc_zzzz"
 archivesBaseName = "timezone"
 
 minecraft {
-    version = "1.8-11.14.4.1563"
+    version = minecraft_version + '-' + forge_version
     runDir = "run"
     
-    mappings = "snapshot_20141130"
+    mappings = mcp_mappings
     replace "@version@", project.version
 }
 
@@ -30,7 +30,6 @@ jar
     manifest {
         attributes 'FMLCorePlugin': project.group + '.timezone.asm.TimeZoneCore', 
                    'FMLCorePluginContainsFMLMod': 'true'
-        
     }
 }
 
