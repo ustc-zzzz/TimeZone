@@ -1,4 +1,4 @@
-package com.github.ustc_zzzz.timezone.asm;
+package com.github.ustc_zzzz.timezone.asm.transformer;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -36,7 +36,7 @@ public class TimeZoneTimeDelegateTransformer implements IClassTransformer
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
                                     "setWorldTimeDelegete", "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
-                            TimeZone.logger.info("Inject code into method 'setWorldTime'. ");
+                            TimeZone.LOGGER.info("- method 'setWorldTime' ");
                         }
                         super.visitFieldInsn(opcode, owner, name, desc);
                     }
@@ -55,7 +55,7 @@ public class TimeZoneTimeDelegateTransformer implements IClassTransformer
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
                                     "getWorldTimeDelegete", "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
-                            TimeZone.logger.info("Inject code into method 'getWorldTime'. ");
+                            TimeZone.LOGGER.info("- method 'getWorldTime' ");
                         }
                         super.visitInsn(opcode);
                     }
@@ -73,10 +73,10 @@ public class TimeZoneTimeDelegateTransformer implements IClassTransformer
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-            TimeZone.logger.info("Inject code into class 'WorldInfo'. ");
+            TimeZone.LOGGER.info("Inject code into class 'WorldInfo'. ");
 
             classReader.accept(new WorldInfoVisitor(classWriter), ClassReader.EXPAND_FRAMES);
-            basicClass = classWriter.toByteArray();
+            return classWriter.toByteArray();
         }
         return basicClass;
     }

@@ -20,7 +20,7 @@ public class TimeZone
     public static final String MODID = "timezone";
     public static final String VERSION = "@version@";
 
-    public static final Logger logger = LogManager.getLogger("TimeZone");
+    public static final Logger LOGGER = LogManager.getLogger("TimeZone");
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -40,6 +40,7 @@ public class TimeZone
         // nothing.
     }
 
+    // Only for DEBUG
     @SubscribeEvent
     public void move(PlayerTickEvent event)
     {

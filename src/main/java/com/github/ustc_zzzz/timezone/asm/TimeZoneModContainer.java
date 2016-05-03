@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.eventbus.EventBus;
 
@@ -34,7 +35,21 @@ public class TimeZoneModContainer extends DummyModContainer implements IFMLCallH
     @Override
     public Void call() throws Exception
     {
-        LogManager.getLogger("TimeZone").info("Processing coremod setup. ");
+        Logger logger = LogManager.getLogger("TimeZone");
+        logger.info("Coremod setup started. ");
+        try
+        {
+            Class.forName("net.minecraft.world.storage.WorldInfo");
+            Class.forName("net.minecraft.network.play.server.S03PacketTimeUpdate");
+            Class.forName("net.minecraft.client.multiplayer.WorldClient");
+            Class.forName("net.minecraft.client.network.NetHandlerPlayClient");
+            Class.forName("net.minecraft.world.WorldProvider");
+        }
+        catch (ClassNotFoundException e)
+        {
+            logger.error(e);
+        }
+        logger.info("Coremod setup finished. ");
         return null;
     }
 
