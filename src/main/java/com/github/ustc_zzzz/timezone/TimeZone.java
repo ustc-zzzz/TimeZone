@@ -3,12 +3,16 @@ package com.github.ustc_zzzz.timezone;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.init.Blocks;
+import com.github.ustc_zzzz.timezone.api.TimeZoneAPI;
+
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 
 @Mod(modid = TimeZone.MODID, version = TimeZone.VERSION, acceptedMinecraftVersions = "[1.8,1.9)", dependencies = "required-after:timezone-core@")
 public class TimeZone
@@ -27,13 +31,19 @@ public class TimeZone
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-        // some example code
-        TimeZone.logger.info("DIRT BLOCK >> " + Blocks.dirt.getUnlocalizedName());
+        FMLCommonHandler.instance().bus().register(this);
     }
     
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
         // nothing.
+    }
+
+    @SubscribeEvent
+    public void move(PlayerTickEvent event)
+    {
+        TimeZoneAPI.INSTANCE.popLocation();
+        TimeZoneAPI.INSTANCE.pushLocation(event.player.posX, event.player.posZ);
     }
 }

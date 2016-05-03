@@ -32,8 +32,10 @@ public class TimeZoneTimeDelegateTransformer implements IClassTransformer
                     {
                         if (opcode == Opcodes.PUTFIELD)
                         {
-                            this.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/api/TimeZoneAPI",
-                                    "relativeTimeToAbsolute", "(J)J", false);
+                            this.visitVarInsn(Opcodes.ALOAD, 0);
+                            this.visitMethodInsn(Opcodes.INVOKESTATIC,
+                                    "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
+                                    "setWorldTimeDelegete", "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
                             TimeZone.logger.info("Inject code into method 'setWorldTime'. ");
                         }
                         super.visitFieldInsn(opcode, owner, name, desc);
@@ -49,8 +51,10 @@ public class TimeZoneTimeDelegateTransformer implements IClassTransformer
                     {
                         if (opcode == Opcodes.LRETURN)
                         {
-                            this.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/api/TimeZoneAPI",
-                                    "absoluteTimeToRelative", "(J)J", false);
+                            this.visitVarInsn(Opcodes.ALOAD, 0);
+                            this.visitMethodInsn(Opcodes.INVOKESTATIC,
+                                    "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
+                                    "getWorldTimeDelegete", "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
                             TimeZone.logger.info("Inject code into method 'getWorldTime'. ");
                         }
                         super.visitInsn(opcode);
