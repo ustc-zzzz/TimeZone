@@ -49,6 +49,48 @@ public class ViewTransformer implements IClassTransformer
         }
     }
 
+    public static class GuiOverlayDebugVisitor extends ClassVisitor
+    {
+        public GuiOverlayDebugVisitor(ClassVisitor cv)
+        {
+            super(Opcodes.ASM5, cv);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
+        {
+            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+
+            if ("call".equals(name) && "()Ljava/util/List;".equals(desc))
+            {
+                return new MethodVisitor(Opcodes.ASM5, mv)
+                {
+
+                    @Override
+                    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf)
+                    {
+                        super.visitMethodInsn(opcode, owner, name, desc, itf);
+                        if (opcode == Opcodes.INVOKEVIRTUAL
+                                && ("func_76073_f".equals(name) || "getWorldTime".equals(name))
+                                && "net/minecraft/client/multiplayer/WorldClient".equals(owner) && "()J".equals(desc))
+                        {
+                            Label l = new Label();
+                            this.visitInsn(Opcodes.DUP2);
+                            this.visitInsn(Opcodes.LCONST_0);
+                            this.visitInsn(Opcodes.LCMP);
+                            this.visitJumpInsn(Opcodes.IFGE, l);
+                            this.visitLdcInsn(new Long(24000));
+                            this.visitInsn(Opcodes.LSUB);
+                            this.visitLabel(l);
+                            TimeZone.LOGGER.info("- method 'call' ");
+                        }
+                    }
+                };
+            }
+            return mv;
+        }
+    }
+
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
@@ -60,6 +102,16 @@ public class ViewTransformer implements IClassTransformer
             TimeZone.LOGGER.info("Inject code into class 'WorldProvider'. ");
 
             classReader.accept(new WorldProviderVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+            basicClass = classWriter.toByteArray();
+        }
+        if ("net.minecraft.client.gui.GuiOverlayDebug".equals(name))
+        {
+            final ClassReader classReader = new ClassReader(basicClass);
+            final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+
+            TimeZone.LOGGER.info("Inject code into class 'GuiOverlayDebug'. ");
+
+            classReader.accept(new GuiOverlayDebugVisitor(classWriter), ClassReader.EXPAND_FRAMES);
             basicClass = classWriter.toByteArray();
         }
         return basicClass;
