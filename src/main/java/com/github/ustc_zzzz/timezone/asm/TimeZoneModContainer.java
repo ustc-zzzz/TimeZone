@@ -32,22 +32,29 @@ public class TimeZoneModContainer extends DummyModContainer implements IFMLCallH
         return meta;
     }
 
+    private void loadClass(String name)
+    {
+        try
+        {
+            Class.forName(name);
+        }
+        catch (ClassNotFoundException e)
+        {
+            // nothing.
+        }
+    }
+
     @Override
     public Void call() throws Exception
     {
         Logger logger = LogManager.getLogger("TimeZone");
         logger.info("Coremod setup started. ");
-        try
         {
-            Class.forName("net.minecraft.world.storage.WorldInfo");
-            Class.forName("net.minecraft.network.play.server.S03PacketTimeUpdate");
-            Class.forName("net.minecraft.client.multiplayer.WorldClient");
-            Class.forName("net.minecraft.client.network.NetHandlerPlayClient");
-            Class.forName("net.minecraft.world.WorldProvider");
-        }
-        catch (ClassNotFoundException e)
-        {
-            logger.error(e);
+            this.loadClass("net.minecraft.world.storage.WorldInfo");
+            this.loadClass("net.minecraft.network.play.server.S03PacketTimeUpdate");
+            this.loadClass("net.minecraft.client.multiplayer.WorldClient");
+            this.loadClass("net.minecraft.client.network.NetHandlerPlayClient");
+            this.loadClass("net.minecraft.world.WorldProvider");
         }
         logger.info("Coremod setup finished. ");
         return null;

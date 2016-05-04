@@ -11,7 +11,7 @@ import com.github.ustc_zzzz.timezone.TimeZone;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 
-public class TimeZoneViewTransformer implements IClassTransformer
+public class ViewTransformer implements IClassTransformer
 {
     public static class WorldProviderVisitor extends ClassVisitor
     {

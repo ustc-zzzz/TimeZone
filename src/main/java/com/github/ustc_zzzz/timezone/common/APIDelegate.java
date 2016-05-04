@@ -14,7 +14,7 @@ public class APIDelegate implements TimeZoneAPI.API
 
     private int pointer = 0;
 
-    private double tickPMeterX = 500, tickPMeterZ = 500;
+    static double tickPMeterX = 500, tickPMeterZ = 500;
 
     public APIDelegate()
     {

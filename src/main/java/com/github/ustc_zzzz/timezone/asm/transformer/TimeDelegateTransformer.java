@@ -10,7 +10,7 @@ import com.github.ustc_zzzz.timezone.TimeZone;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 
-public class TimeZoneTimeDelegateTransformer implements IClassTransformer
+public class TimeDelegateTransformer implements IClassTransformer
 {
     public static class WorldInfoVisitor extends ClassVisitor
     {
