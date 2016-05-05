@@ -34,8 +34,8 @@ public class TimeDelegateTransformer implements IClassTransformer
                         {
                             this.visitVarInsn(Opcodes.ALOAD, 0);
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
-                                    "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
-                                    "setWorldTimeDelegete", "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
+                                    "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "setWorldTimeDelegete",
+                                    "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
                             TimeZone.LOGGER.info("- method 'setWorldTime' ");
                         }
                         super.visitFieldInsn(opcode, owner, name, desc);
@@ -53,8 +53,8 @@ public class TimeDelegateTransformer implements IClassTransformer
                         {
                             this.visitVarInsn(Opcodes.ALOAD, 0);
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
-                                    "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
-                                    "getWorldTimeDelegete", "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
+                                    "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "getWorldTimeDelegete",
+                                    "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
                             TimeZone.LOGGER.info("- method 'getWorldTime' ");
                         }
                         super.visitInsn(opcode);

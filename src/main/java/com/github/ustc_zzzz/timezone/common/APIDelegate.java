@@ -12,6 +12,8 @@ public class APIDelegate implements TimeZoneAPI.API
     private double[] xStack = new double[64];
     private double[] zStack = new double[64];
 
+    private long[] thread = new long[64];
+
     private int pointer = 0;
 
     static double tickPMeterX = 500, tickPMeterZ = 500;
@@ -19,6 +21,7 @@ public class APIDelegate implements TimeZoneAPI.API
     public APIDelegate()
     {
         xStack[0] = zStack[0] = 0;
+        thread[0] = 0;
     }
 
     @Override
@@ -142,13 +145,29 @@ public class APIDelegate implements TimeZoneAPI.API
     @Override
     public double getLocationX()
     {
-        return this.xStack[pointer];
+        long id = Thread.currentThread().getId();
+        for (int i = pointer; i > 0; --i)
+        {
+            if (thread[i] == id)
+            {
+                return xStack[i];
+            }
+        }
+        return xStack[0];
     }
 
     @Override
     public double getLocationZ()
     {
-        return this.zStack[pointer];
+        long id = Thread.currentThread().getId();
+        for (int i = pointer; i > 0; --i)
+        {
+            if (thread[i] == id)
+            {
+                return zStack[i];
+            }
+        }
+        return zStack[0];
     }
 
     @Override
@@ -166,13 +185,15 @@ public class APIDelegate implements TimeZoneAPI.API
     @Override
     public synchronized void pushLocation(double x, double z)
     {
-        if (++pointer >= xStack.length)
+        if (++pointer >= thread.length)
         {
             xStack = Arrays.copyOf(xStack, pointer + 32);
             zStack = Arrays.copyOf(zStack, pointer + 32);
+            thread = Arrays.copyOf(thread, pointer + 32);
         }
         xStack[pointer] = x;
         zStack[pointer] = z;
+        thread[pointer] = Thread.currentThread().getId();
     }
 
     @Override
@@ -184,10 +205,22 @@ public class APIDelegate implements TimeZoneAPI.API
     @Override
     public synchronized void popLocation()
     {
-        if (--pointer < 0)
+        long id = Thread.currentThread().getId();
+        for (int i = pointer; i > 0; --i)
         {
-            pointer = 0;
+            if (thread[i] == id)
+            {
+                while (++i <= pointer)
+                {
+                    xStack[i] = xStack[i - 1];
+                    zStack[i] = zStack[i - 1];
+                    thread[i] = thread[i - 1];
+                }
+                --pointer;
+                return;
+            }
         }
+        return;
     }
 
     @Override

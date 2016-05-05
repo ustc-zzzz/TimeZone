@@ -3,7 +3,6 @@ package com.github.ustc_zzzz.timezone;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.github.ustc_zzzz.timezone.api.TimeZoneAPI;
 import com.github.ustc_zzzz.timezone.common.CommonProxy;
 
 import net.minecraftforge.fml.common.Mod;
@@ -41,7 +40,7 @@ public class TimeZone
     {
         proxy.init(event);
     }
-    
+
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
@@ -52,7 +51,8 @@ public class TimeZone
     @SubscribeEvent
     public void move(PlayerTickEvent event)
     {
-        TimeZoneAPI.INSTANCE.popLocation();
-        TimeZoneAPI.INSTANCE.pushLocation(event.player.posX, event.player.posZ);
+        // TimeZoneAPI.INSTANCE.popLocation();
+        // TimeZoneAPI.INSTANCE.pushLocation(event.player.posX,
+        // event.player.posZ);
     }
 }

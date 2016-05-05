@@ -7,9 +7,9 @@ import net.minecraft.world.World;
 public enum TimeZoneAPI
 {
     /* nothing. */;
-    
+
     public static final API INSTANCE;
-    
+
     static
     {
         try

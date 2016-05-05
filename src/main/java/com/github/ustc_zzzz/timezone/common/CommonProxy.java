@@ -34,7 +34,6 @@ public class CommonProxy
         FMLCommonHandler.instance().bus().register(TimeZone.instance);
         FMLCommonHandler.instance().bus().register(EventHandler.INSTANCE);
         MinecraftForge.EVENT_BUS.register(EventHandler.INSTANCE);
-        // nothing.
     }
 
     public void postInit(FMLPostInitializationEvent event)
