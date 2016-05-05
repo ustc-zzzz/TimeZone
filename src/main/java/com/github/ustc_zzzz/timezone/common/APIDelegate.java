@@ -212,9 +212,9 @@ public class APIDelegate implements TimeZoneAPI.API
             {
                 while (++i <= pointer)
                 {
-                    xStack[i] = xStack[i - 1];
-                    zStack[i] = zStack[i - 1];
-                    thread[i] = thread[i - 1];
+                    xStack[i - 1] = xStack[i];
+                    zStack[i - 1] = zStack[i];
+                    thread[i - 1] = thread[i];
                 }
                 --pointer;
                 return;
