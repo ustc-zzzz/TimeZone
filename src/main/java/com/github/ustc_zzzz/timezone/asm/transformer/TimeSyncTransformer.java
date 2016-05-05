@@ -185,7 +185,7 @@ public class TimeSyncTransformer implements IClassTransformer
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-            TimeZone.LOGGER.info("Inject code into class 'S03PacketTimeUpdate'. ");
+            TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'S03PacketTimeUpdate'. ");
 
             classReader.accept(new S03PacketTimeUpdateVisitor(classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();
@@ -195,7 +195,7 @@ public class TimeSyncTransformer implements IClassTransformer
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-            TimeZone.LOGGER.info("Inject code into class 'WorldClient'. ");
+            TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'WorldClient'. ");
 
             classReader.accept(new WorldClientVisitor(classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();
@@ -205,7 +205,7 @@ public class TimeSyncTransformer implements IClassTransformer
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-            TimeZone.LOGGER.info("Inject code into class 'NetHandlerPlayClient'. ");
+            TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'NetHandlerPlayClient'. ");
 
             classReader.accept(new NetHandlerPlayClientVisitor(classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();

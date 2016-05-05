@@ -99,7 +99,7 @@ public class ViewTransformer implements IClassTransformer
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-            TimeZone.LOGGER.info("Inject code into class 'WorldProvider'. ");
+            TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'WorldProvider'. ");
 
             classReader.accept(new WorldProviderVisitor(classWriter), ClassReader.EXPAND_FRAMES);
             basicClass = classWriter.toByteArray();
@@ -109,7 +109,7 @@ public class ViewTransformer implements IClassTransformer
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-            TimeZone.LOGGER.info("Inject code into class 'GuiOverlayDebug'. ");
+            TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'GuiOverlayDebug'. ");
 
             classReader.accept(new GuiOverlayDebugVisitor(classWriter), ClassReader.EXPAND_FRAMES);
             basicClass = classWriter.toByteArray();

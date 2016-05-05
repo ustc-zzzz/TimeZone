@@ -73,7 +73,7 @@ public class TimeDelegateTransformer implements IClassTransformer
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-            TimeZone.LOGGER.info("Inject code into class 'WorldInfo'. ");
+            TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'WorldInfo'. ");
 
             classReader.accept(new WorldInfoVisitor(classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();

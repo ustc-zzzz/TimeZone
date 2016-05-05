@@ -71,7 +71,7 @@ public class ControlTransformer implements IClassTransformer
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-            TimeZone.LOGGER.info("Inject code into class 'CommandTime'. ");
+            TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'CommandTime'. ");
 
             classReader.accept(new CommandTimeVisitor(classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();
