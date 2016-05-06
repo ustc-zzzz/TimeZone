@@ -2,6 +2,7 @@ package com.github.ustc_zzzz.timezone.asm;
 
 import java.util.Map;
 
+import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.Name("TimeZone")
@@ -12,13 +13,17 @@ public class TimeZoneCore implements IFMLLoadingPlugin
     @Override
     public String[] getASMTransformerClass()
     {
-        return new String[]
+        if (ForgeVersion.mcVersion.equals("1.8.9"))
         {
-                "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer",
-                "com.github.ustc_zzzz.timezone.asm.transformer.TimeSyncTransformer",
-                "com.github.ustc_zzzz.timezone.asm.transformer.ViewTransformer",
-                "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer"
-        };
+            return new String[]
+            {
+                    "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer",
+                    "com.github.ustc_zzzz.timezone.asm.transformer.TimeSyncTransformer",
+                    "com.github.ustc_zzzz.timezone.asm.transformer.ViewTransformer",
+                    "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer"
+            };
+        }
+        throw new RuntimeException("TimeZone: Invalid minecraft version: " + ForgeVersion.mcVersion);
     }
 
     @Override

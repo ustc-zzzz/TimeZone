@@ -1,12 +1,9 @@
 package com.github.ustc_zzzz.timezone.common;
 
-import com.github.ustc_zzzz.timezone.TimeZone;
-
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -30,9 +27,6 @@ public class CommonProxy
 
     public void init(FMLInitializationEvent event)
     {
-        // Only for DEBUG
-        FMLCommonHandler.instance().bus().register(TimeZone.instance);
-        FMLCommonHandler.instance().bus().register(EventHandler.INSTANCE);
         MinecraftForge.EVENT_BUS.register(EventHandler.INSTANCE);
     }
 

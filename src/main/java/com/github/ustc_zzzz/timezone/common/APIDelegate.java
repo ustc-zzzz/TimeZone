@@ -93,7 +93,8 @@ public class APIDelegate implements TimeZoneAPI.API
     }
 
     @Override
-    public long getTimeDiffFromBaseWithLocation(double x, double z, double xBase, double zBase, World world)
+    public long getTimeDiffFromBaseWithLocation(double x, double z, double xBase, double zBase,
+            World world)
     {
         return Math.round(tickPMeterX * (x - xBase) + tickPMeterZ * (z - zBase));
     }
@@ -143,7 +144,7 @@ public class APIDelegate implements TimeZoneAPI.API
     }
 
     @Override
-    public double getLocationX()
+    public synchronized double getLocationX()
     {
         long id = Thread.currentThread().getId();
         for (int i = pointer; i > 0; --i)
@@ -157,7 +158,7 @@ public class APIDelegate implements TimeZoneAPI.API
     }
 
     @Override
-    public double getLocationZ()
+    public synchronized double getLocationZ()
     {
         long id = Thread.currentThread().getId();
         for (int i = pointer; i > 0; --i)
@@ -171,13 +172,13 @@ public class APIDelegate implements TimeZoneAPI.API
     }
 
     @Override
-    public int getPosLocationX()
+    public synchronized int getPosLocationX()
     {
         return (int) Math.floor(this.getLocationX());
     }
 
     @Override
-    public int getPosLocationZ()
+    public synchronized int getPosLocationZ()
     {
         return (int) Math.floor(this.getLocationZ());
     }
@@ -227,5 +228,11 @@ public class APIDelegate implements TimeZoneAPI.API
     public synchronized void popPosLocation()
     {
         this.popLocation();
+    }
+
+    @Override
+    public synchronized int stackSize()
+    {
+        return pointer + 1;
     }
 }
