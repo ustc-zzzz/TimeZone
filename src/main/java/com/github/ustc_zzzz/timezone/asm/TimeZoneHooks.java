@@ -85,13 +85,9 @@ public class TimeZoneHooks
         world.calculateInitialSkylight();
     }
 
-    public static void preCommand(ICommandSender sender)
-    {
-        TimeZoneAPI.INSTANCE.pushPosLocation(sender.getPosition().getX(), sender.getPosition().getZ());
-    }
-
-    public static void postCommand()
+    public static void processCommandDelegate(ICommandSender sender)
     {
         TimeZoneAPI.INSTANCE.popPosLocation();
+        TimeZoneAPI.INSTANCE.pushPosLocation(sender.getPosition().getX(), sender.getPosition().getZ());
     }
 }

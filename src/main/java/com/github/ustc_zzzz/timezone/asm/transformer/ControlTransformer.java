@@ -28,6 +28,16 @@ public class ControlTransformer implements IClassTransformer
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
+                    public void visitCode()
+                    {
+                        super.visitCode();
+                        this.visitVarInsn(Opcodes.ALOAD, 1);
+                        this.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
+                                "processCommandDelegate", "(Lnet/minecraft/command/ICommandSender;)V", false);
+                        TimeZone.LOGGER.info("- method 'processCommand' ");
+                    }
+
+                    @Override
                     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf)
                     {
                         if (opcode == Opcodes.INVOKESTATIC && "parseInt".equals(name)
@@ -40,7 +50,6 @@ public class ControlTransformer implements IClassTransformer
                             this.visitInsn(Opcodes.AALOAD);
                             super.visitMethodInsn(Opcodes.INVOKESTATIC, owner, "parseInt", "(Ljava/lang/String;)I",
                                     false);
-                            TimeZone.LOGGER.info("- method 'processCommand' ");
                             return;
                         }
                         if (opcode == Opcodes.INVOKESTATIC && "func_180528_a".equals(name))
@@ -52,7 +61,6 @@ public class ControlTransformer implements IClassTransformer
                             this.visitInsn(Opcodes.AALOAD);
                             super.visitMethodInsn(Opcodes.INVOKESTATIC, owner, "func_175755_a", "(Ljava/lang/String;)I",
                                     false);
-                            TimeZone.LOGGER.info("- method 'processCommand' ");
                             return;
                         }
                         super.visitMethodInsn(opcode, owner, name, desc, itf);
@@ -78,5 +86,4 @@ public class ControlTransformer implements IClassTransformer
         }
         return basicClass;
     }
-
 }
