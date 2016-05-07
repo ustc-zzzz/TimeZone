@@ -41,11 +41,36 @@ public class TimeSyncTransformer implements IClassTransformer
                                     "net/minecraft/network/play/server/S03PacketTimeUpdate", "doDayLightCycle", "Z");
                             this.visitInsn(Opcodes.RETURN);
                             TimeZone.LOGGER.info("- constructor ");
+                            return;
                         }
-                        else
+                        if (opcode == Opcodes.LLOAD && var == 3)
                         {
                             super.visitVarInsn(opcode, var);
+                            this.visitMethodInsn(Opcodes.INVOKESTATIC,
+                                    "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "setSyncWorldTimeDelegate",
+                                    "(J)J", false);
+                            TimeZone.LOGGER.info("- constructor ");
+                            return;
                         }
+                        super.visitVarInsn(opcode, var);
+                    }
+                };
+            }
+            if ("getWorldTime".equals(name) || "func_149365_d".equals(desc))
+            {
+                return new MethodVisitor(Opcodes.ASM5, mv)
+                {
+                    @Override
+                    public void visitInsn(int opcode)
+                    {
+                        if (opcode == Opcodes.LRETURN)
+                        {
+                            this.visitMethodInsn(Opcodes.INVOKESTATIC,
+                                    "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "getSyncWorldTimeDelegate",
+                                    "(J)J", false);
+                            TimeZone.LOGGER.info("- method 'getWorldTime' ");
+                        }
+                        super.visitInsn(opcode);
                     }
                 };
             }

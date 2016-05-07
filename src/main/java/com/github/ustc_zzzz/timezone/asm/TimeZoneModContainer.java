@@ -57,6 +57,7 @@ public class TimeZoneModContainer extends DummyModContainer implements IFMLCallH
             this.loadClass("net.minecraft.world.WorldProvider");
             this.loadClass("net.minecraft.command.CommandTime");
             this.loadClass("net.minecraft.client.gui.GuiOverlayDebug");
+            this.loadClass("net.minecraft.world.World");
         }
         logger.info("Coremod setup finished. ");
         return null;

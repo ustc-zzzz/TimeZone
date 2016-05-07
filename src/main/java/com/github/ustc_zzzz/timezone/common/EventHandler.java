@@ -5,7 +5,6 @@ import com.github.ustc_zzzz.timezone.api.TimeZoneAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -59,12 +58,5 @@ public class EventHandler
             TimeZoneAPI.INSTANCE.popLocation();
             break;
         }
-    }
-
-    @SubscribeEvent
-    public void onLivingCheckSpawn(LivingSpawnEvent.CheckSpawn event)
-    {
-        TimeZoneAPI.INSTANCE.popLocation();
-        TimeZoneAPI.INSTANCE.pushLocation(event.entityLiving.posX, event.entityLiving.posZ);
     }
 }

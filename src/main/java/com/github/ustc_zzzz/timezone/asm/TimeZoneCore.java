@@ -20,7 +20,8 @@ public class TimeZoneCore implements IFMLLoadingPlugin
                     "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer",
                     "com.github.ustc_zzzz.timezone.asm.transformer.TimeSyncTransformer",
                     "com.github.ustc_zzzz.timezone.asm.transformer.ViewTransformer",
-                    "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer"
+                    "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer",
+                    "com.github.ustc_zzzz.timezone.asm.transformer.TickUpdateTransformer"
             };
         }
         throw new RuntimeException("TimeZone: Invalid minecraft version: " + ForgeVersion.mcVersion);
