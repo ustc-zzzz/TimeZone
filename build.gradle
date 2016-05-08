@@ -13,16 +13,51 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
+
 version = mod_version
 group= "com.github.ustc_zzzz"
 archivesBaseName = "timezone"
+
+sourceSets {
+    main {
+        java {
+            srcDirs += 'src/api/java'
+            srcDirs += 'src/main/java/'
+        }
+        resources {
+            srcDir "src/main/resources/"
+        }
+    }
+}
 
 minecraft {
     version = minecraft_version + '-' + forge_version
     runDir = "run"
     
     mappings = mcp_mappings
+    
     replace "@version@", project.version
+    replace "@apiversion@", api_version
+}
+
+task apiJar(type: Jar, dependsOn: sourceJar) {
+    from 'build/sources/api/java/'
+    classifier = 'api' + '-' + api_version
+    
+    from 'src/api/java/LICENSE'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from 'build/docs/javadoc/'
+    classifier = 'javadoc'
+}
+
+artifacts {
+    archives apiJar
+    archives javadocJar
+    archives sourceJar
 }
 
 jar
@@ -50,9 +85,6 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
 }
-
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
 
 processResources
 {
