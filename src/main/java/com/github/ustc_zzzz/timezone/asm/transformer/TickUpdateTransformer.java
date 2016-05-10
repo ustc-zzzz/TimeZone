@@ -1,8 +1,5 @@
 package com.github.ustc_zzzz.timezone.asm.transformer;
 
-import net.minecraft.launchwrapper.IClassTransformer;
-import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -10,6 +7,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.github.ustc_zzzz.timezone.TimeZone;
+
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 
 public class TickUpdateTransformer implements IClassTransformer
 {
@@ -36,7 +36,7 @@ public class TickUpdateTransformer implements IClassTransformer
                     public void visitTypeInsn(int opcode, String type)
                     {
                         super.visitTypeInsn(opcode, type);
-                        if ("net/minecraft/entity/Entity".equals(type))
+                        if ("net/minecraft/entity/Entity".equals(FMLDeobfuscatingRemapper.INSTANCE.map(type)))
                         {
                             this.visitInsn(Opcodes.DUP);
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
@@ -45,7 +45,7 @@ public class TickUpdateTransformer implements IClassTransformer
                             TimeZone.LOGGER.info("- method '" + methodName + "' ");
                             return;
                         }
-                        if ("net/minecraft/tileentity/TileEntity".equals(type))
+                        if ("net/minecraft/tileentity/TileEntity".equals(FMLDeobfuscatingRemapper.INSTANCE.map(type)))
                         {
                             this.visitInsn(Opcodes.DUP);
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
