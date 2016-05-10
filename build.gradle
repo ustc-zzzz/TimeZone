@@ -7,22 +7,58 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0.2'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-20160401.201315-35'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.0"
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
+
+version = mod_version
 group= "com.github.ustc_zzzz"
-archivesBaseName = "timezone"
+archivesBaseName = "TimeZone"
+
+sourceSets {
+    main {
+        java {
+            srcDirs += 'src/api/java'
+            srcDirs += 'src/main/java/'
+        }
+        resources {
+            srcDir "src/main/resources/"
+        }
+    }
+}
 
 minecraft {
-    version = "1.8-11.14.4.1563"
+    version = minecraft_version + '-' + forge_version
     runDir = "run"
     
-    mappings = "snapshot_20141130"
+    mappings = mcp_mappings
+    
     replace "@version@", project.version
+    replace "@apiversion@", api_version
+}
+
+task apiJar(type: Jar, dependsOn: sourceJar) {
+    from 'build/sources/api/java/'
+    baseName = 'TimeZoneAPI'
+    version = api_version
+    
+    from 'src/api/java/LICENSE'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from 'build/docs/javadoc/'
+    classifier = 'javadoc'
+}
+
+artifacts {
+    archives apiJar
+    archives javadocJar
+    archives sourceJar
 }
 
 jar
@@ -30,7 +66,6 @@ jar
     manifest {
         attributes 'FMLCorePlugin': project.group + '.timezone.asm.TimeZoneCore', 
                    'FMLCorePluginContainsFMLMod': 'true'
-        
     }
 }
 
@@ -51,9 +86,6 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
 }
-
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
 
 processResources
 {
