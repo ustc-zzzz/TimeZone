@@ -40,7 +40,7 @@ public class TimeZoneModContainer extends DummyModContainer implements IFMLCallH
         }
         catch (ClassNotFoundException e)
         {
-            // nothing.
+            ;// nothing.
         }
     }
 

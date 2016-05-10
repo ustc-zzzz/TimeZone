@@ -25,6 +25,7 @@ public class ControlTransformer implements IClassTransformer
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
             if ("func_71515_b".equals(name) || "processCommand".equals(name))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -34,7 +35,7 @@ public class ControlTransformer implements IClassTransformer
                         this.visitVarInsn(Opcodes.ALOAD, 1);
                         this.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
                                 "processCommandDelegate", "(Lnet/minecraft/command/ICommandSender;)V", false);
-                        TimeZone.LOGGER.info("- method 'processCommand' ");
+                        TimeZone.LOGGER.info("- method '" + methodName + "' ");
                     }
 
                     @Override

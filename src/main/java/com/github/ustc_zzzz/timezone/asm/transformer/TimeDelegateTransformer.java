@@ -25,6 +25,7 @@ public class TimeDelegateTransformer implements IClassTransformer
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
             if ("func_76068_b".equals(name) || "setWorldTime".equals(name))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -36,7 +37,7 @@ public class TimeDelegateTransformer implements IClassTransformer
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "setWorldTimeDelegete",
                                     "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
-                            TimeZone.LOGGER.info("- method 'setWorldTime' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                         }
                         super.visitFieldInsn(opcode, owner, name, desc);
                     }
@@ -44,6 +45,7 @@ public class TimeDelegateTransformer implements IClassTransformer
             }
             if ("func_76073_f".equals(name) || "getWorldTime".equals(name))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -55,7 +57,7 @@ public class TimeDelegateTransformer implements IClassTransformer
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "getWorldTimeDelegete",
                                     "(JLnet/minecraft/world/storage/WorldInfo;)J", false);
-                            TimeZone.LOGGER.info("- method 'getWorldTime' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                         }
                         super.visitInsn(opcode);
                     }

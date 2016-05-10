@@ -27,6 +27,7 @@ public class ViewTransformer implements IClassTransformer
 
             if ("calculateCelestialAngle".equals(name) || "func_76563_a".equals(name))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -40,7 +41,7 @@ public class ViewTransformer implements IClassTransformer
                             this.visitJumpInsn(Opcodes.IFGE, l);
                             this.visitIincInsn(4, 24000);
                             this.visitLabel(l);
-                            TimeZone.LOGGER.info("- method 'calculateCelestialAngle' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                         }
                     }
                 };
@@ -63,6 +64,7 @@ public class ViewTransformer implements IClassTransformer
 
             if ("call".equals(name) && "()Ljava/util/List;".equals(desc))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
 
@@ -82,7 +84,7 @@ public class ViewTransformer implements IClassTransformer
                             this.visitLdcInsn(new Long(24000));
                             this.visitInsn(Opcodes.LSUB);
                             this.visitLabel(l);
-                            TimeZone.LOGGER.info("- method 'call' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                         }
                     }
                 };

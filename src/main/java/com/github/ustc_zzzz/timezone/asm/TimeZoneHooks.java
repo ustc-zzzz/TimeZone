@@ -66,17 +66,15 @@ public class TimeZoneHooks
 
     public static void preBlockPosLightDelegate(World world, BlockPos pos)
     {
-        TimeZoneAPI.INSTANCE.pushLocation(pos.getX(), pos.getZ());
-        world.calculateInitialSkylight();
         TimeZoneEvents.BlockPosLightEvent.Pre e = new TimeZoneEvents.BlockPosLightEvent.Pre(pos);
         MinecraftForge.EVENT_BUS.post(e);
+        world.calculateInitialSkylight();
     }
 
     public static int postBlockPosLightDelegate(int light, BlockPos pos)
     {
         TimeZoneEvents.BlockPosLightEvent.Post e = new TimeZoneEvents.BlockPosLightEvent.Post(pos, light);
         MinecraftForge.EVENT_BUS.post(e);
-        TimeZoneAPI.INSTANCE.popLocation();
         return e.light;
     }
 

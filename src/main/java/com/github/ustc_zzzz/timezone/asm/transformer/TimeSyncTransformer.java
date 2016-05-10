@@ -58,6 +58,7 @@ public class TimeSyncTransformer implements IClassTransformer
             }
             if ("getWorldTime".equals(name) || "func_149365_d".equals(desc))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -68,7 +69,7 @@ public class TimeSyncTransformer implements IClassTransformer
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "getSyncWorldTimeDelegate",
                                     "(J)J", false);
-                            TimeZone.LOGGER.info("- method 'getWorldTime' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                         }
                         super.visitInsn(opcode);
                     }
@@ -76,6 +77,7 @@ public class TimeSyncTransformer implements IClassTransformer
             }
             if ("readPacketData".equals(name) || "func_148837_a".equals(desc))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -89,7 +91,7 @@ public class TimeSyncTransformer implements IClassTransformer
                                     "readBoolean", "()Z", false);
                             this.visitFieldInsn(Opcodes.PUTFIELD,
                                     "net/minecraft/network/play/server/S03PacketTimeUpdate", "doDayLightCycle", "Z");
-                            TimeZone.LOGGER.info("- method 'readPacketData' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                         }
                         super.visitInsn(opcode);
                     }
@@ -97,6 +99,7 @@ public class TimeSyncTransformer implements IClassTransformer
             }
             if ("writePacketData".equals(name) || "func_148840_b".equals(desc))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -111,7 +114,7 @@ public class TimeSyncTransformer implements IClassTransformer
                             this.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "net/minecraft/network/PacketBuffer",
                                     "writeBoolean", "(Z)Lio/netty/buffer/ByteBuf;", false);
                             this.visitInsn(Opcodes.POP);
-                            TimeZone.LOGGER.info("- method 'writePacketData' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                         }
                         super.visitInsn(opcode);
                     }
@@ -148,9 +151,9 @@ public class TimeSyncTransformer implements IClassTransformer
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+            final String methodName = name;
             if ("setWorldTime".equals(name) || "func_72877_b".equals(name))
             {
-                final String methodName = name;
                 mv.visitCode();
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
                 mv.visitVarInsn(Opcodes.LLOAD, 1);
@@ -158,7 +161,7 @@ public class TimeSyncTransformer implements IClassTransformer
                 mv.visitInsn(Opcodes.RETURN);
                 mv.visitMaxs(1, 1);
                 mv.visitEnd();
-                TimeZone.LOGGER.info("- method 'setWorldTime' ");
+                TimeZone.LOGGER.info("- method '" + methodName + "' ");
                 return null;
             }
             return mv;
@@ -178,6 +181,7 @@ public class TimeSyncTransformer implements IClassTransformer
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
             if ("handleTimeUpdate".equals(name) || "func_147285_a".equals(name))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -192,7 +196,7 @@ public class TimeSyncTransformer implements IClassTransformer
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "handleTimeUpdateDelegate",
                                     "(Z)V", false);
-                            TimeZone.LOGGER.info("- method 'handleTimeUpdate' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                         }
                         super.visitInsn(opcode);
                     }

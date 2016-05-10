@@ -25,6 +25,7 @@ public class TickUpdateTransformer implements IClassTransformer
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
             if ("func_72939_s".equals(name) || "updateEntities".equals(name))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -37,7 +38,7 @@ public class TickUpdateTransformer implements IClassTransformer
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "updateEntitiesDelegate",
                                     "(Lnet/minecraft/entity/Entity;)V", false);
-                            TimeZone.LOGGER.info("- method 'updateEntities' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                             return;
                         }
                         if ("net/minecraft/tileentity/TileEntity".equals(type))
@@ -46,7 +47,7 @@ public class TickUpdateTransformer implements IClassTransformer
                             this.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks", "updateTileEntitiesDelegate",
                                     "(Lnet/minecraft/tileentity/TileEntity;)V", false);
-                            TimeZone.LOGGER.info("- method 'updateEntities' ");
+                            TimeZone.LOGGER.info("- method '" + methodName + "' ");
                             return;
                         }
                     }
@@ -54,6 +55,7 @@ public class TickUpdateTransformer implements IClassTransformer
             }
             if ("func_175699_k".equals(name) || "func_175721_c".equals(name) || "getLight".equals(name))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -65,7 +67,7 @@ public class TickUpdateTransformer implements IClassTransformer
                         this.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
                                 "preBlockPosLightDelegate",
                                 "(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;)V", false);
-                        TimeZone.LOGGER.info("- method 'getLight' ");
+                        TimeZone.LOGGER.info("- method '" + methodName + "' ");
                     }
 
                     @Override
@@ -84,6 +86,7 @@ public class TickUpdateTransformer implements IClassTransformer
             }
             if ("func_175657_ab".equals(name) || "getSkylightSubtracted".equals(name))
             {
+                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -94,7 +97,7 @@ public class TickUpdateTransformer implements IClassTransformer
                         this.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
                                 "getSkylightSubtractedDelegate",
                                 "(Lnet/minecraft/world/World;)V", false);
-                        TimeZone.LOGGER.info("- method 'getSkylightSubtracted' ");
+                        TimeZone.LOGGER.info("- method '" + methodName + "' ");
                     }
                 };
             }
