@@ -1,5 +1,8 @@
 package com.github.ustc_zzzz.timezone.asm.transformer;
 
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -8,24 +11,25 @@ import org.objectweb.asm.Opcodes;
 
 import com.github.ustc_zzzz.timezone.TimeZone;
 
-import net.minecraft.launchwrapper.IClassTransformer;
-
 public class TickUpdateTransformer implements IClassTransformer
 {
     public static class WorldVisitor extends ClassVisitor
     {
-        public WorldVisitor(ClassVisitor cv)
+        private final String className;
+
+        public WorldVisitor(String className, ClassVisitor cv)
         {
             super(Opcodes.ASM5, cv);
+            this.className = FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/'));
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            if ("func_72939_s".equals(name) || "updateEntities".equals(name))
+            final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(this.className, name, desc);
+            if ("func_72939_s".equals(methodName) || "updateEntities".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -53,9 +57,9 @@ public class TickUpdateTransformer implements IClassTransformer
                     }
                 };
             }
-            if ("func_175699_k".equals(name) || "func_175721_c".equals(name) || "getLight".equals(name))
+            if ("func_175699_k".equals(methodName) || "func_175721_c".equals(methodName)
+                    || "getLight".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -84,9 +88,8 @@ public class TickUpdateTransformer implements IClassTransformer
                     }
                 };
             }
-            if ("func_175657_ab".equals(name) || "getSkylightSubtracted".equals(name))
+            if ("func_175657_ab".equals(methodName) || "getSkylightSubtracted".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -95,8 +98,7 @@ public class TickUpdateTransformer implements IClassTransformer
                         super.visitCode();
                         this.visitVarInsn(Opcodes.ALOAD, 0);
                         this.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
-                                "getSkylightSubtractedDelegate",
-                                "(Lnet/minecraft/world/World;)V", false);
+                                "getSkylightSubtractedDelegate", "(Lnet/minecraft/world/World;)V", false);
                         TimeZone.LOGGER.info("- method '" + methodName + "' ");
                     }
                 };
@@ -108,14 +110,14 @@ public class TickUpdateTransformer implements IClassTransformer
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
-        if ("net.minecraft.world.World".equals(name))
+        if ("net.minecraft.world.World".equals(transformedName))
         {
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
             TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'World'. ");
 
-            classReader.accept(new WorldVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+            classReader.accept(new WorldVisitor(transformedName, classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();
         }
         return basicClass;

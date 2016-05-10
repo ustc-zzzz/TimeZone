@@ -1,8 +1,5 @@
 package com.github.ustc_zzzz.timezone.common;
 
-import com.github.ustc_zzzz.timezone.api.TimeZoneAPI;
-import com.github.ustc_zzzz.timezone.api.TimeZoneEvents;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -10,6 +7,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import com.github.ustc_zzzz.timezone.api.TimeZoneAPI;
+import com.github.ustc_zzzz.timezone.api.TimeZoneEvents;
 
 public class EventHandler
 {

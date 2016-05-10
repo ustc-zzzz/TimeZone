@@ -9,23 +9,27 @@ import org.objectweb.asm.Opcodes;
 import com.github.ustc_zzzz.timezone.TimeZone;
 
 import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 
 public class TimeDelegateTransformer implements IClassTransformer
 {
     public static class WorldInfoVisitor extends ClassVisitor
     {
-        public WorldInfoVisitor(ClassVisitor cv)
+        private final String className;
+
+        public WorldInfoVisitor(String className, ClassVisitor cv)
         {
             super(Opcodes.ASM5, cv);
+            this.className = FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/'));
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            if ("func_76068_b".equals(name) || "setWorldTime".equals(name))
+            final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(this.className, name, desc);
+            if ("func_76068_b".equals(methodName) || "setWorldTime".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -43,9 +47,8 @@ public class TimeDelegateTransformer implements IClassTransformer
                     }
                 };
             }
-            if ("func_76073_f".equals(name) || "getWorldTime".equals(name))
+            if ("func_76073_f".equals(methodName) || "getWorldTime".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -70,14 +73,14 @@ public class TimeDelegateTransformer implements IClassTransformer
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
-        if ("net.minecraft.world.storage.WorldInfo".equals(name))
+        if ("net.minecraft.world.storage.WorldInfo".equals(transformedName))
         {
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
             TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'WorldInfo'. ");
 
-            classReader.accept(new WorldInfoVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+            classReader.accept(new WorldInfoVisitor(transformedName, classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();
         }
         return basicClass;

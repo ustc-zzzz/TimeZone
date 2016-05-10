@@ -1,5 +1,8 @@
 package com.github.ustc_zzzz.timezone.asm.transformer;
 
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -8,24 +11,25 @@ import org.objectweb.asm.Opcodes;
 
 import com.github.ustc_zzzz.timezone.TimeZone;
 
-import net.minecraft.launchwrapper.IClassTransformer;
-
 public class ControlTransformer implements IClassTransformer
 {
     public static class CommandTimeVisitor extends ClassVisitor
     {
-        public CommandTimeVisitor(ClassVisitor cv)
+        private final String className;
+
+        public CommandTimeVisitor(String className, ClassVisitor cv)
         {
             super(Opcodes.ASM5, cv);
+            this.className = FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/'));
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            if ("func_71515_b".equals(name) || "processCommand".equals(name))
+            final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(this.className, name, desc);
+            if ("func_71515_b".equals(methodName) || "processCommand".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -53,15 +57,15 @@ public class ControlTransformer implements IClassTransformer
                                     false);
                             return;
                         }
-                        if (opcode == Opcodes.INVOKESTATIC && "func_180528_a".equals(name))
+                        if (opcode == Opcodes.INVOKESTATIC && "a".equals(name) && "(Ljava/lang/String;I)I".equals(desc))
                         {
                             this.visitInsn(Opcodes.POP);
                             this.visitInsn(Opcodes.POP);
                             this.visitVarInsn(Opcodes.ALOAD, 2);
                             this.visitInsn(Opcodes.ICONST_1);
                             this.visitInsn(Opcodes.AALOAD);
-                            super.visitMethodInsn(Opcodes.INVOKESTATIC, owner, "func_175755_a", "(Ljava/lang/String;)I",
-                                    false);
+                            super.visitMethodInsn(Opcodes.INVOKESTATIC, owner, "func_175755_a",
+                                    "(Ljava/lang/String;)I", false);
                             return;
                         }
                         super.visitMethodInsn(opcode, owner, name, desc, itf);
@@ -75,14 +79,14 @@ public class ControlTransformer implements IClassTransformer
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
-        if ("net.minecraft.command.CommandTime".equals(name))
+        if ("net.minecraft.command.CommandTime".equals(transformedName))
         {
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
             TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'CommandTime'. ");
 
-            classReader.accept(new CommandTimeVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+            classReader.accept(new CommandTimeVisitor(transformedName, classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();
         }
         return basicClass;

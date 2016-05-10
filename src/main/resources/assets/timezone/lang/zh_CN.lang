@@ -1,0 +1,2 @@
+timezone.configgui.tickPerChunkX.tooltip=每X方向一区块变化的时间tick数，默认为60，必须介于-12000和12000中间，0代表X方向时间无变化，大于1000或小于-1000可能会导致难以捉摸的bug。
+timezone.configgui.tickPerChunkZ.tooltip=每Z方向一区块变化的时间tick数，默认为0，必须介于-12000和12000中间，0代表Z方向时间无变化，大于1000或小于-1000可能会导致难以捉摸的bug。

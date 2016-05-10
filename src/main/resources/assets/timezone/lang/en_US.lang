@@ -1,0 +1,2 @@
+timezone.configgui.tickPerChunkX.tooltip=Ticks per chunk on X axis (default 60), must be between -12000 and 12000, 0 means time does not change, those more than 1000 or less than -1000 may cause elusive bugs. 
+timezone.configgui.tickPerChunkZ.tooltip=Ticks per chunk on Z axis (default 0), must be between -12000 and 12000, 0 means time does not change, those more than 1000 or less than -1000 may cause elusive bugs. 

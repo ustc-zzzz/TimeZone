@@ -1,5 +1,8 @@
 package com.github.ustc_zzzz.timezone.asm.transformer;
 
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -9,25 +12,25 @@ import org.objectweb.asm.Opcodes;
 
 import com.github.ustc_zzzz.timezone.TimeZone;
 
-import net.minecraft.launchwrapper.IClassTransformer;
-
 public class ViewTransformer implements IClassTransformer
 {
     public static class WorldProviderVisitor extends ClassVisitor
     {
-        public WorldProviderVisitor(ClassVisitor cv)
+        private final String className;
+
+        public WorldProviderVisitor(String className, ClassVisitor cv)
         {
             super(Opcodes.ASM5, cv);
+            this.className = FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/'));
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-
-            if ("calculateCelestialAngle".equals(name) || "func_76563_a".equals(name))
+            final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(this.className, name, desc);
+            if ("calculateCelestialAngle".equals(methodName) || "func_76563_a".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -52,29 +55,30 @@ public class ViewTransformer implements IClassTransformer
 
     public static class GuiOverlayDebugVisitor extends ClassVisitor
     {
-        public GuiOverlayDebugVisitor(ClassVisitor cv)
+        private final String className;
+
+        public GuiOverlayDebugVisitor(String className, ClassVisitor cv)
         {
             super(Opcodes.ASM5, cv);
+            this.className = FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/'));
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-
+            final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(this.className, name, desc);
             if ("call".equals(name) && "()Ljava/util/List;".equals(desc))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
-
                     @Override
                     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf)
                     {
                         super.visitMethodInsn(opcode, owner, name, desc, itf);
                         if (opcode == Opcodes.INVOKEVIRTUAL
-                                && ("func_76073_f".equals(name) || "getWorldTime".equals(name))
-                                && "net/minecraft/client/multiplayer/WorldClient".equals(owner) && "()J".equals(desc))
+                                && ("func_76073_f".equals(methodName) || "getWorldTime".equals(methodName))
+                                && "()J".equals(desc))
                         {
                             Label l = new Label();
                             this.visitInsn(Opcodes.DUP2);
@@ -96,24 +100,24 @@ public class ViewTransformer implements IClassTransformer
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
-        if ("net.minecraft.world.WorldProvider".equals(name))
+        if ("net.minecraft.world.WorldProvider".equals(transformedName))
         {
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
             TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'WorldProvider'. ");
 
-            classReader.accept(new WorldProviderVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+            classReader.accept(new WorldProviderVisitor(transformedName, classWriter), ClassReader.EXPAND_FRAMES);
             basicClass = classWriter.toByteArray();
         }
-        if ("net.minecraft.client.gui.GuiOverlayDebug".equals(name))
+        if ("net.minecraft.client.gui.GuiOverlayDebug".equals(transformedName))
         {
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
             TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'GuiOverlayDebug'. ");
 
-            classReader.accept(new GuiOverlayDebugVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+            classReader.accept(new GuiOverlayDebugVisitor(transformedName, classWriter), ClassReader.EXPAND_FRAMES);
             basicClass = classWriter.toByteArray();
         }
         return basicClass;

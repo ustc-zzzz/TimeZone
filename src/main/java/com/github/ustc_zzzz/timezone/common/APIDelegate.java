@@ -88,13 +88,14 @@ public class APIDelegate implements TimeZoneAPI.API
     @Override
     public void setRelativeTimeWithLocation(double x, double z, World world, long relativeTime)
     {
-        this.setRelativeTime(world, relativeTime
-                + Math.round(tickPMeterX * (this.getLocationX() - x) + tickPMeterZ * (this.getLocationZ() - x)));
+        this.setRelativeTime(
+                world,
+                relativeTime
+                        + Math.round(tickPMeterX * (this.getLocationX() - x) + tickPMeterZ * (this.getLocationZ() - x)));
     }
 
     @Override
-    public long getTimeDiffFromBaseWithLocation(double x, double z, double xBase, double zBase,
-            World world)
+    public long getTimeDiffFromBaseWithLocation(double x, double z, double xBase, double zBase, World world)
     {
         return Math.round(tickPMeterX * (x - xBase) + tickPMeterZ * (z - zBase));
     }

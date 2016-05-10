@@ -1,5 +1,8 @@
 package com.github.ustc_zzzz.timezone.asm.transformer;
 
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -9,24 +12,26 @@ import org.objectweb.asm.Opcodes;
 
 import com.github.ustc_zzzz.timezone.TimeZone;
 
-import net.minecraft.launchwrapper.IClassTransformer;
-
 public class TimeSyncTransformer implements IClassTransformer
 {
     public static class S03PacketTimeUpdateVisitor extends ClassVisitor
     {
         private boolean hasDoDayLightCycle = false;
 
-        public S03PacketTimeUpdateVisitor(ClassVisitor cv)
+        private final String className;
+
+        public S03PacketTimeUpdateVisitor(String className, ClassVisitor cv)
         {
             super(Opcodes.ASM5, cv);
+            this.className = FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/'));
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            if ("<init>".equals(name) && "(JJZ)V".equals(desc))
+            final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(this.className, name, desc);
+            if ("<init>".equals(methodName) && "(JJZ)V".equals(desc))
             {
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
@@ -56,9 +61,8 @@ public class TimeSyncTransformer implements IClassTransformer
                     }
                 };
             }
-            if ("getWorldTime".equals(name) || "func_149365_d".equals(desc))
+            if ("getWorldTime".equals(methodName) || "func_149365_d".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -75,9 +79,8 @@ public class TimeSyncTransformer implements IClassTransformer
                     }
                 };
             }
-            if ("readPacketData".equals(name) || "func_148837_a".equals(desc))
+            if ("readPacketData".equals(methodName) || "func_148837_a".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -97,9 +100,8 @@ public class TimeSyncTransformer implements IClassTransformer
                     }
                 };
             }
-            if ("writePacketData".equals(name) || "func_148840_b".equals(desc))
+            if ("writePacketData".equals(methodName) || "func_148840_b".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -142,17 +144,20 @@ public class TimeSyncTransformer implements IClassTransformer
 
     public static class WorldClientVisitor extends ClassVisitor
     {
-        public WorldClientVisitor(ClassVisitor cv)
+        private final String className;
+
+        public WorldClientVisitor(String className, ClassVisitor cv)
         {
             super(Opcodes.ASM5, cv);
+            this.className = FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/'));
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            final String methodName = name;
-            if ("setWorldTime".equals(name) || "func_72877_b".equals(name))
+            final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(this.className, name, desc);
+            if ("setWorldTime".equals(methodName) || "func_72877_b".equals(methodName))
             {
                 mv.visitCode();
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -170,18 +175,21 @@ public class TimeSyncTransformer implements IClassTransformer
 
     public static class NetHandlerPlayClientVisitor extends ClassVisitor
     {
-        public NetHandlerPlayClientVisitor(ClassVisitor cv)
+        private final String className;
+
+        public NetHandlerPlayClientVisitor(String className, ClassVisitor cv)
         {
             super(Opcodes.ASM5, cv);
+            this.className = FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/'));
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            if ("handleTimeUpdate".equals(name) || "func_147285_a".equals(name))
+            final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(this.className, name, desc);
+            if ("handleTimeUpdate".equals(methodName) || "func_147285_a".equals(methodName))
             {
-                final String methodName = name;
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
                     @Override
@@ -209,37 +217,37 @@ public class TimeSyncTransformer implements IClassTransformer
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
-        if ("net.minecraft.network.play.server.S03PacketTimeUpdate".equals(name))
+        if ("net.minecraft.network.play.server.S03PacketTimeUpdate".equals(transformedName))
         {
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
             TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'S03PacketTimeUpdate'. ");
 
-            classReader.accept(new S03PacketTimeUpdateVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+            classReader.accept(new S03PacketTimeUpdateVisitor(transformedName, classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();
         }
-        if ("net.minecraft.client.multiplayer.WorldClient".equals(name))
+        if ("net.minecraft.client.multiplayer.WorldClient".equals(transformedName))
         {
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
             TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'WorldClient'. ");
 
-            classReader.accept(new WorldClientVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+            classReader.accept(new WorldClientVisitor(transformedName, classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();
         }
-        if ("net.minecraft.client.network.NetHandlerPlayClient".equals(name))
+        if ("net.minecraft.client.network.NetHandlerPlayClient".equals(transformedName))
         {
             final ClassReader classReader = new ClassReader(basicClass);
             final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
             TimeZone.LOGGER.info(this.getClass().getSimpleName() + ": Inject code into class 'NetHandlerPlayClient'. ");
 
-            classReader.accept(new NetHandlerPlayClientVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+            classReader
+                    .accept(new NetHandlerPlayClientVisitor(transformedName, classWriter), ClassReader.EXPAND_FRAMES);
             return classWriter.toByteArray();
         }
         return basicClass;
     }
-
 }

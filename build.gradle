@@ -44,7 +44,8 @@ minecraft {
 
 task apiJar(type: Jar, dependsOn: sourceJar) {
     from 'build/sources/api/java/'
-    classifier = 'api' + '-' + api_version
+    baseName = 'TimeZoneAPI'
+    version = api_version
     
     from 'src/api/java/LICENSE'
 }
