@@ -68,7 +68,7 @@ public class ViewTransformer implements IClassTransformer
         {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
             final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(this.className, name, desc);
-            if ("call".equals(name) && "()Ljava/util/List;".equals(desc))
+            if ("call".equals(methodName) && "()Ljava/util/List;".equals(desc))
             {
                 return new MethodVisitor(Opcodes.ASM5, mv)
                 {
@@ -77,8 +77,7 @@ public class ViewTransformer implements IClassTransformer
                     {
                         super.visitMethodInsn(opcode, owner, name, desc, itf);
                         if (opcode == Opcodes.INVOKEVIRTUAL
-                                && ("func_76073_f".equals(methodName) || "getWorldTime".equals(methodName))
-                                && "()J".equals(desc))
+                                && ("func_76073_f".equals(name) || "getWorldTime".equals(name)) && "()J".equals(desc))
                         {
                             Label l = new Label();
                             this.visitInsn(Opcodes.DUP2);
