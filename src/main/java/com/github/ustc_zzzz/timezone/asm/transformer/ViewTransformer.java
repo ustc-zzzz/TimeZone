@@ -1,8 +1,5 @@
 package com.github.ustc_zzzz.timezone.asm.transformer;
 
-import net.minecraft.launchwrapper.IClassTransformer;
-import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -11,6 +8,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.github.ustc_zzzz.timezone.TimeZone;
+
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 
 public class ViewTransformer implements IClassTransformer
 {
@@ -76,8 +76,8 @@ public class ViewTransformer implements IClassTransformer
                     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf)
                     {
                         super.visitMethodInsn(opcode, owner, name, desc, itf);
-                        if (opcode == Opcodes.INVOKEVIRTUAL
-                                && ("func_76073_f".equals(name) || "getWorldTime".equals(name)) && "()J".equals(desc))
+                        if (opcode == Opcodes.INVOKEVIRTUAL && ("L".equals(name) || "getWorldTime".equals(name))
+                                && "()J".equals(desc))
                         {
                             Label l = new Label();
                             this.visitInsn(Opcodes.DUP2);

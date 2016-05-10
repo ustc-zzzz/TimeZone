@@ -1,8 +1,5 @@
 package com.github.ustc_zzzz.timezone.asm.transformer;
 
-import net.minecraft.launchwrapper.IClassTransformer;
-import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -10,6 +7,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.github.ustc_zzzz.timezone.TimeZone;
+
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 
 public class ControlTransformer implements IClassTransformer
 {
