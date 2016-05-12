@@ -11,6 +11,7 @@ buildscript {
     }
 }
 
+apply plugin: 'scala'
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 sourceCompatibility = '1.6'
@@ -22,12 +23,19 @@ archivesBaseName = "TimeZone"
 
 sourceSets {
     main {
+        scala {
+            srcDir 'src/main/scala/'
+        }
         java {
-            srcDirs += 'src/api/java'
-            srcDirs += 'src/main/java/'
+            srcDir 'src/api/java/'
         }
         resources {
             srcDir "src/main/resources/"
+        }
+    }
+    api {
+        java {
+            srcDir 'src/api/java/'
         }
     }
 }
