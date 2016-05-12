@@ -20,7 +20,7 @@ class EventHandler {
   def onRenderGameOverlayText(event: RenderGameOverlayEvent.Text) = {
     val info = event.left
     if (!info.isEmpty) {
-      val diff = TimeZoneAPI.INSTANCE.getTimeDiffFromBase(0, 0, Minecraft.getMinecraft.theWorld)
+      val diff = APIDelegate.timeDiffFromRelativeToAbsolute
       val diffD = Math.round(diff / 24000D)
       val diffT = (diff - diffD * 24000L).asInstanceOf[Int]
       val diffS = if (diffT > 0) '+' else '-'

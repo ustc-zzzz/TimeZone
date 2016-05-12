@@ -10,22 +10,23 @@ import net.minecraft.world.World
 import net.minecraftforge.common.MinecraftForge
 import net.minecraft.entity.Entity
 import net.minecraft.tileentity.TileEntity
+import com.github.ustc_zzzz.timezone.common.APIDelegate
 
 object TimeZoneHooks {
   def getSyncWorldTimeDelegate(time: Long) = {
-    TimeZoneAPI.INSTANCE.absoluteTimeToRelative(time)
+    time + APIDelegate.timeDiffFromRelativeToAbsolute
   }
 
   def setSyncWorldTimeDelegate(time: Long) = {
-    TimeZoneAPI.INSTANCE.relativeTimeToAbsolute(time)
+    time - APIDelegate.timeDiffFromRelativeToAbsolute
   }
 
   def getWorldTimeDelegete(time: Long, worldInfo: WorldInfo) = {
-    time + TimeZoneAPI.INSTANCE.getTimeDiffFromBase(worldInfo.getSpawnX, worldInfo.getSpawnZ, null)
+    time + APIDelegate.timeDiffFromRelative(APIDelegate.position(worldInfo.getSpawnX, worldInfo.getSpawnZ))
   }
 
   def setWorldTimeDelegete(time: Long, worldInfo: WorldInfo) = {
-    time - TimeZoneAPI.INSTANCE.getTimeDiffFromBase(worldInfo.getSpawnX, worldInfo.getSpawnZ, null)
+    time - APIDelegate.timeDiffFromRelative(APIDelegate.position(worldInfo.getSpawnX, worldInfo.getSpawnZ))
   }
 
   def handleTimeUpdateDelegate(doDaylightCycle: Boolean) = {
@@ -33,21 +34,21 @@ object TimeZoneHooks {
   }
 
   def findChunksForSpawningDelegate(posX: Int, posZ: Int) = {
-    TimeZoneAPI.INSTANCE.popPosLocation
-    TimeZoneAPI.INSTANCE.pushPosLocation(posX, posZ)
+    APIDelegate.popPosLocation
+    APIDelegate.pushPosLocation(posX, posZ)
   }
 
   def updateEntitiesDelegate(e: Entity) = {
     if (e != null) {
-      TimeZoneAPI.INSTANCE.popLocation
-      TimeZoneAPI.INSTANCE.pushLocation(e.posX, e.posZ)
+      APIDelegate.popLocation
+      APIDelegate.pushLocation(e.posX, e.posZ)
     }
   }
 
   def updateTileEntitiesDelegate(te: TileEntity) = {
     if (te != null && te.getPos != null) {
-      TimeZoneAPI.INSTANCE.popLocation
-      TimeZoneAPI.INSTANCE.pushLocation(te.getPos.getX, te.getPos.getZ)
+      APIDelegate.popLocation
+      APIDelegate.pushLocation(te.getPos.getX, te.getPos.getZ)
     }
   }
 
@@ -68,7 +69,7 @@ object TimeZoneHooks {
   }
 
   def processCommandDelegate(sender: ICommandSender) = {
-    TimeZoneAPI.INSTANCE.popPosLocation
-    TimeZoneAPI.INSTANCE.pushPosLocation(sender.getPosition.getX, sender.getPosition.getZ)
+    APIDelegate.popPosLocation
+    APIDelegate.pushPosLocation(sender.getPosition.getX, sender.getPosition.getZ)
   }
 }

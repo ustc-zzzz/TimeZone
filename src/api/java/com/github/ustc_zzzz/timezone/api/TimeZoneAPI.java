@@ -2,6 +2,8 @@ package com.github.ustc_zzzz.timezone.api;
 
 import java.util.concurrent.Callable;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 public enum TimeZoneAPI
@@ -14,7 +16,8 @@ public enum TimeZoneAPI
     {
         try
         {
-            INSTANCE = API.class.cast(Class.forName("com.github.ustc_zzzz.timezone.common.APIDelegate").newInstance());
+            INSTANCE = API.class.cast(
+                    Class.forName("com.github.ustc_zzzz.timezone.common.APIDelegate$").getField("MODULE$").get(null));
         }
         catch (Exception e)
         {
@@ -22,31 +25,50 @@ public enum TimeZoneAPI
         }
     }
 
+    public static interface Position
+    {
+        double getX();
+
+        double getZ();
+
+        int getPosX();
+
+        int getPosZ();
+    }
+
     public static interface API
     {
-        long relativeTimeToAbsolute(long relativeTime);
+        Position relative();
 
-        long absoluteTimeToRelative(long absoluteTime);
+        Position absolute();
+
+        Position position(int x, int z);
+
+        Position position(double x, double z);
+
+        Position position(BlockPos pos);
+
+        Position position(Entity entity);
 
         long getRelativeTime(World world);
 
         long getAbsoluteTime(World world);
 
+        long getTime(Position location, World world);
+
         void setRelativeTime(World world, long relativeTime);
 
         void setAbsoluteTime(World world, long absoluteTime);
 
-        long getTimeDiffFromBase(double xBase, double zBase, World world);
+        void setTime(Position location, World world, long time);
 
-        long relativeTimeToAbsoluteWithLocation(double x, double z, long relativeTime);
+        long timeDiffFromRelativeToAbsolute();
 
-        long absoluteTimeToRelativeWithLocation(double x, double z, long absoluteTime);
+        long timeDiffFromRelative(Position locationBase);
 
-        long getRelativeTimeWithLocation(double x, double z, World world);
+        long timeDiffToAbsoulte(Position location);
 
-        void setRelativeTimeWithLocation(double x, double z, World world, long relativeTime);
-
-        long getTimeDiffFromBaseWithLocation(double x, double z, double xBase, double zBase, World world);
+        long timeDiff(Position location, Position locationBase);
 
         void doWithLocation(double x, double z, Runnable runnable);
 
@@ -55,6 +77,10 @@ public enum TimeZoneAPI
         void doWithPosLocation(int x, int z, Runnable runnable);
 
         <E> E doWithPosLocation(int x, int z, Callable<E> callable) throws Exception;
+
+        void doWithPositionLocation(Position location, Runnable runnable);
+
+        <E> E doWithPositionLocation(Position location, Callable<E> callable) throws Exception;
 
         double getLocationX();
 
@@ -71,6 +97,12 @@ public enum TimeZoneAPI
         void pushPosLocation(int x, int z);
 
         void popPosLocation();
+
+        Position getPositionLocation();
+
+        void pushPositionLocation(Position location);
+
+        void popPositionLocation();
 
         int stackSize();
     }

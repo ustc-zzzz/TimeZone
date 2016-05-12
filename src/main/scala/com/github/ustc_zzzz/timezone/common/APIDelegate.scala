@@ -1,52 +1,112 @@
 package com.github.ustc_zzzz.timezone.common
 
+import java.util.Arrays
+import java.util.concurrent.Callable
+
 import com.github.ustc_zzzz.timezone.api.TimeZoneAPI
 
 import net.minecraft.world.World
-import java.util.concurrent.Callable
-import java.util.Arrays
+import com.github.ustc_zzzz.timezone.api.TimeZoneAPI.Position
+import net.minecraft.util.BlockPos
+import net.minecraft.entity.Entity
 
-class APIDelegate extends TimeZoneAPI.API {
-  var pointer = 0
+object APIDelegate extends TimeZoneAPI.API {
+  case class ILocationDelegate(x: Double, z: Double) extends TimeZoneAPI.Position {
+    def getPosX: Int = Math.floor(x).asInstanceOf[Int]
+    def getPosZ: Int = Math.floor(z).asInstanceOf[Int]
+    def getX: Double = x
+    def getZ: Double = z
+  }
 
-  var xStack = new Array[Double](64)
-  var zStack = new Array[Double](64)
+  case object ILocationRelative extends TimeZoneAPI.Position {
+    def getPosX: Int = getPosLocationX
+    def getPosZ: Int = getPosLocationZ
+    def getX: Double = getLocationX
+    def getZ: Double = getLocationZ
+  }
 
-  var thread = new Array[Long](64)
+  var tickPMeterX = 60D
+  var tickPMeterZ = 0D
 
-  private def dt(dx: Double, dz: Double) = Math.round(APIDelegate.tickPMeterX * dx + APIDelegate.tickPMeterZ * dz)
+  protected var pointer = 0
 
-  override def relativeTimeToAbsolute(relativeTime: Long) = relativeTime - dt(getLocationX, getLocationZ)
+  protected var xStack = new Array[Double](64)
+  protected var zStack = new Array[Double](64)
 
-  override def absoluteTimeToRelative(absoluteTime: Long) = absoluteTime + dt(getLocationX, getLocationZ)
+  protected var thread = new Array[Long](64)
+
+  protected def dt(dx: Double, dz: Double) = Math.round(APIDelegate.tickPMeterX * dx + APIDelegate.tickPMeterZ * dz)
+
+  override def absolute() = ILocationDelegate(0D, 0D)
+
+  override def relative() = ILocationRelative
+
+  override def position(entity: Entity) = ILocationDelegate(entity.posX, entity.posZ)
+
+  override def position(pos: BlockPos) = ILocationDelegate(pos.getX, pos.getZ)
+
+  override def position(x: Double, z: Double) = ILocationDelegate(x, z)
+
+  override def position(x: Int, z: Int) = ILocationDelegate(x + 0.5D, z + 0.5D)
 
   override def getRelativeTime(world: World) = world getWorldTime
 
-  override def getAbsoluteTime(world: World) = relativeTimeToAbsolute(world getWorldTime)
+  override def getAbsoluteTime(world: World) = world.getWorldTime - timeDiffFromRelativeToAbsolute
+
+  override def getTime(location: TimeZoneAPI.Position, world: World) = world.getWorldTime - timeDiffFromRelative(location)
 
   override def setRelativeTime(world: World, relativeTime: Long) = world setWorldTime relativeTime
 
-  override def setAbsoluteTime(world: World, absoluteTime: Long) = world setWorldTime absoluteTimeToRelative(absoluteTime)
+  override def setAbsoluteTime(world: World, absoluteTime: Long) = world setWorldTime (absoluteTime + timeDiffFromRelativeToAbsolute)
 
-  override def getTimeDiffFromBase(xBase: Double, zBase: Double, world: World) = dt(getLocationX - xBase, getLocationZ - zBase)
+  override def setTime(location: TimeZoneAPI.Position, world: World, absoluteTime: Long) = world setWorldTime (absoluteTime + timeDiffFromRelative(location))
 
-  override def relativeTimeToAbsoluteWithLocation(x: Double, z: Double, relativeTime: Long) = relativeTime - dt(x, z)
+  override def timeDiffFromRelativeToAbsolute() = dt(getLocationX, getLocationZ)
 
-  override def absoluteTimeToRelativeWithLocation(x: Double, z: Double, absoluteTime: Long) = absoluteTime + dt(x, z)
+  override def timeDiffFromRelative(locationBase: TimeZoneAPI.Position) = dt(getLocationX - locationBase.getX, getLocationZ - locationBase.getZ)
 
-  override def getRelativeTimeWithLocation(x: Double, z: Double, world: World) = getRelativeTime(world) - getTimeDiffFromBase(x, z, world)
+  override def timeDiffToAbsoulte(location: TimeZoneAPI.Position) = dt(location.getX, location.getZ)
 
-  override def setRelativeTimeWithLocation(x: Double, z: Double, world: World, relativeTime: Long) = setRelativeTime(world, relativeTime + getTimeDiffFromBase(x, z, world))
+  override def timeDiff(location: TimeZoneAPI.Position, locationBase: TimeZoneAPI.Position) = dt(location.getX - locationBase.getX, location.getZ - locationBase.getZ)
 
-  override def getTimeDiffFromBaseWithLocation(x: Double, z: Double, xBase: Double, zBase: Double, world: World) = dt(x - xBase, z - zBase)
+  override def doWithLocation(x: Double, z: Double, runnable: Runnable) = synchronized {
+    pushLocation(x, z)
+    runnable.run
+    popLocation
+  }
 
-  override def doWithLocation(x: Double, z: Double, runnable: Runnable) = { pushLocation(x, z); runnable.run; popLocation }
+  override def doWithLocation[E](x: Double, z: Double, callable: Callable[E]) = synchronized {
+    try {
+      pushLocation(x, z)
+      callable.call
+    } finally popLocation
+  }
 
-  override def doWithLocation[E](x: Double, z: Double, callable: Callable[E]) = try { pushLocation(x, z); callable.call } finally popLocation
+  override def doWithPosLocation(x: Int, z: Int, runnable: Runnable) = synchronized {
+    pushPosLocation(x, z)
+    runnable.run
+    popPosLocation
+  }
 
-  override def doWithPosLocation(x: Int, z: Int, runnable: Runnable) = { pushPosLocation(x, z); runnable.run; popPosLocation }
+  override def doWithPosLocation[E](x: Int, z: Int, callable: Callable[E]) = synchronized {
+    try {
+      pushPosLocation(x, z)
+      callable.call
+    } finally popPosLocation
+  }
 
-  override def doWithPosLocation[E](x: Int, z: Int, callable: Callable[E]) = try { pushPosLocation(x, z); callable.call } finally popPosLocation
+  override def doWithPositionLocation(location: TimeZoneAPI.Position, runnable: Runnable) = synchronized {
+    pushPositionLocation(location)
+    runnable.run
+    popPositionLocation
+  }
+
+  override def doWithPositionLocation[E](location: TimeZoneAPI.Position, callable: Callable[E]) = synchronized {
+    try {
+      pushPositionLocation(location)
+      callable.call
+    } finally popPositionLocation
+  }
 
   override def getLocationX() = synchronized {
     val id = Thread.currentThread.getId
@@ -97,10 +157,11 @@ class APIDelegate extends TimeZoneAPI.API {
 
   override def popPosLocation() = synchronized(popLocation)
 
-  override def stackSize() = 1 + pointer
-}
+  override def getPositionLocation() = ILocationRelative
 
-object APIDelegate {
-  var tickPMeterX = 60D
-  var tickPMeterZ = 0D
+  override def pushPositionLocation(location: TimeZoneAPI.Position) = synchronized(pushLocation(location.getX, location.getZ))
+
+  override def popPositionLocation() = synchronized(popLocation)
+
+  override def stackSize() = 1 + pointer
 }
