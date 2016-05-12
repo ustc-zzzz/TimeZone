@@ -60,15 +60,15 @@ public enum TimeZoneAPI
 
         double getLocationZ();
 
+        void pushLocation(double x, double z);
+
+        void popLocation();
+
         int getPosLocationX();
 
         int getPosLocationZ();
 
-        void pushLocation(double x, double z);
-
         void pushPosLocation(int x, int z);
-
-        void popLocation();
 
         void popPosLocation();
 
