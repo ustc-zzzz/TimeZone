@@ -52,6 +52,18 @@ class EventHandler {
   }
 
   @SubscribeEvent
+  @SideOnly(Side.CLIENT)
+  def onClientTick(event: TickEvent.ClientTickEvent) = {
+    val player = Minecraft.getMinecraft.thePlayer
+    if (player != null) {
+      event.phase match {
+        case TickEvent.Phase.START => TimeZoneAPI.INSTANCE.pushLocation(player.posX, player.posZ)
+        case TickEvent.Phase.END => TimeZoneAPI.INSTANCE.popLocation
+      }
+    }
+  }
+  
+  @SubscribeEvent
   def onWorldTick(event: TickEvent.WorldTickEvent) = {
     // For protection. 
     event.phase match {
