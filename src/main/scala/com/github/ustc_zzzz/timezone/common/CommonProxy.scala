@@ -10,7 +10,7 @@ import net.minecraft.util.MathHelper
 
 class CommonProxy {
   def preInit(event: FMLPreInitializationEvent): Unit = {
-    val config = new Configuration(event getSuggestedConfigurationFile)
+    val config = new Configuration(event.getSuggestedConfigurationFile)
     config.load
     val commentTickPerChunkX = StatCollector.translateToLocal("timezone.configgui.tickPerChunkX.tooltip")
     val commentTickPerChunkZ = StatCollector.translateToLocal("timezone.configgui.tickPerChunkZ.tooltip")
