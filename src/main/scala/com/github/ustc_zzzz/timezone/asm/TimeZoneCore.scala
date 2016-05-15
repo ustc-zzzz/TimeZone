@@ -17,7 +17,7 @@ import java.util.Arrays
 @IFMLLoadingPlugin.MCVersion("")
 @IFMLLoadingPlugin.TransformerExclusions(Array("com.github.ustc_zzzz.timezone.asm."))
 class TimeZoneCore extends IFMLLoadingPlugin {
-  override def getASMTransformerClass: Array[String] = ForgeVersion mcVersion match {
+  override def getASMTransformerClass: Array[String] = ForgeVersion.mcVersion match {
     case "1.8.9" => Array(
       "com.github.ustc_zzzz.timezone.asm.transformer.TickUpdateTransformer",
       "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer",

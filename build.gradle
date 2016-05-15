@@ -18,8 +18,12 @@ sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
 version = mod_version
-group= "com.github.ustc_zzzz"
+group = "com.github.ustc_zzzz"
 archivesBaseName = "TimeZone"
+
+//compileScala {
+//    scalaCompileOptions.setAdditionalParameters(["-feature"])
+//}
 
 sourceSets {
     main {
