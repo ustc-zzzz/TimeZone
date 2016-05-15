@@ -22,11 +22,11 @@ object TimeZoneHooks {
   }
 
   def getWorldTimeDelegete(time: Long, worldInfo: WorldInfo) = {
-    time + APIDelegate.timeDiffFromRelative(APIDelegate.position(worldInfo.getSpawnX, worldInfo.getSpawnZ))
+    time + APIDelegate.timeDiffFromRelative(APIDelegate.position(worldInfo.getSpawnX, worldInfo.getSpawnZ)) + 1000
   }
 
   def setWorldTimeDelegete(time: Long, worldInfo: WorldInfo) = {
-    time - APIDelegate.timeDiffFromRelative(APIDelegate.position(worldInfo.getSpawnX, worldInfo.getSpawnZ))
+    time - APIDelegate.timeDiffFromRelative(APIDelegate.position(worldInfo.getSpawnX, worldInfo.getSpawnZ)) - 1000
   }
 
   def handleTimeUpdateDelegate(doDaylightCycle: Boolean) = {
