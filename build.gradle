@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-20160401.201315-35'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 
@@ -27,20 +27,12 @@ archivesBaseName = "TimeZone"
 
 sourceSets {
     main {
-        scala {
-            srcDir 'src/main/scala/'
-        }
-        java {
-            srcDir 'src/api/java/'
-        }
-        resources {
-            srcDir "src/main/resources/"
-        }
+        scala.srcDir 'src/main/scala/'
+        java.srcDir 'src/api/java/'
+        resources.srcDir "src/main/resources/"
     }
     api {
-        java {
-            srcDir 'src/api/java/'
-        }
+        java.srcDir 'src/api/java/'
     }
 }
 
@@ -68,13 +60,12 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 artifacts {
+    archives sourceJar
     archives apiJar
     archives javadocJar
-    archives sourceJar
 }
 
-jar
-{
+jar {
     manifest {
         attributes 'FMLCorePlugin': project.group + '.timezone.asm.TimeZoneCore', 
                    'FMLCorePluginContainsFMLMod': 'true'
@@ -99,8 +90,7 @@ dependencies {
 
 }
 
-processResources
-{
+processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 

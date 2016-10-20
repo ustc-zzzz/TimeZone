@@ -1,6 +1,6 @@
 package com.github.ustc_zzzz.timezone.api;
 
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public enum TimeZoneEvents

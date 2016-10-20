@@ -11,14 +11,12 @@ import net.minecraftforge.fml.relauncher.SideOnly
 import net.minecraftforge.fml.relauncher.Side
 
 object EventHandler {
-    final val instance = new EventHandler  
-}
-
-class EventHandler {
+  private val api = TimeZoneAPI.INSTANCE
+  
   @SubscribeEvent
   @SideOnly(Side.CLIENT)
   def onRenderGameOverlayText(event: RenderGameOverlayEvent.Text) = {
-    val info = event.left
+    val info = event.getLeft
     if (!info.isEmpty) {
       val diff = APIDelegate.timeDiffFromRelativeToAbsolute
       val diffD = Math.round(diff / 24000D)
@@ -26,9 +24,10 @@ class EventHandler {
       val diffS = if (diffT > 0) '+' else '-'
       val diffH = Math.abs((diffT / 1000D).asInstanceOf[Int])
       val diffM = Math.abs((diffT % 1000) * 60 / 1000)
-      val stackSize = TimeZoneAPI.INSTANCE.stackSize
-      val locationX = TimeZoneAPI.INSTANCE.getLocationX
-      val locationZ = TimeZoneAPI.INSTANCE.getLocationZ
+      val stackSize = api.stackSize
+      val location = api.relative;
+      val locationX = location.getX
+      val locationZ = location.getZ
       info add f""
       info add f"[TimeZone]"
       info add f"StackSize: $stackSize%d"
@@ -45,8 +44,8 @@ class EventHandler {
     val player = Minecraft.getMinecraft.thePlayer
     if (player != null) {
       event.phase match {
-        case TickEvent.Phase.START => TimeZoneAPI.INSTANCE.pushLocation(player.posX, player.posZ)
-        case TickEvent.Phase.END => TimeZoneAPI.INSTANCE.popLocation
+        case TickEvent.Phase.START => api.pushLocation(api.position(player.posX, player.posZ))
+        case TickEvent.Phase.END => api.popLocation
       }
     }
   }
@@ -57,8 +56,8 @@ class EventHandler {
     val player = Minecraft.getMinecraft.thePlayer
     if (player != null) {
       event.phase match {
-        case TickEvent.Phase.START => TimeZoneAPI.INSTANCE.pushLocation(player.posX, player.posZ)
-        case TickEvent.Phase.END => TimeZoneAPI.INSTANCE.popLocation
+        case TickEvent.Phase.START => api.pushLocation(api.position(player.posX, player.posZ))
+        case TickEvent.Phase.END => api.popLocation
       }
     }
   }
@@ -67,16 +66,16 @@ class EventHandler {
   def onWorldTick(event: TickEvent.WorldTickEvent) = {
     // For protection. 
     event.phase match {
-      case TickEvent.Phase.START => TimeZoneAPI.INSTANCE.pushLocation(0D, 0D)
-      case TickEvent.Phase.END => TimeZoneAPI.INSTANCE.popLocation
+      case TickEvent.Phase.START => api.pushLocation(api.position(0D, 0D))
+      case TickEvent.Phase.END => api.popLocation
     }
   }
 
   @SubscribeEvent
   def onBlockLight(event: TimeZoneEvents.BlockPosLightEvent) = {
     event.phase match {
-      case TimeZoneEvents.BlockPosLightEvent.Phase.START => TimeZoneAPI.INSTANCE.pushPosLocation(event.pos.getX, event.pos.getZ)
-      case TimeZoneEvents.BlockPosLightEvent.Phase.END => TimeZoneAPI.INSTANCE.popPosLocation
+      case TimeZoneEvents.BlockPosLightEvent.Phase.START => api.pushLocation(api.position(event.pos))
+      case TimeZoneEvents.BlockPosLightEvent.Phase.END => api.popLocation
     }
   }
 }
