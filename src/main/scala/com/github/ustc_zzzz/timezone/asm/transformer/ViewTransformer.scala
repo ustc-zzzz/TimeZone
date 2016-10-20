@@ -2,58 +2,43 @@ package com.github.ustc_zzzz.timezone.asm.transformer
 
 import scala.tools.asm._
 
-import com.github.ustc_zzzz.timezone.TimeZone
 import com.github.ustc_zzzz.timezone.asm.TimeZoneTransformer
 
 class ViewTransformer extends TimeZoneTransformer {
-  class WorldProviderVisitor(name: String, cv: ClassWriter) extends TimeZoneClassVisitor(name, cv) {
-    override def visitDeobfMethod(methodName: String, methodDesc: String) = (methodName, methodDesc) match {
-      case ("func_76563_a" | "calculateCelestialAngle", methodDesc) => new MethodVisitor(Opcodes.ASM4, _) {
-        override def visitVarInsn(opcode: Int, variable: Int) = (opcode, variable) match {
-          case (Opcodes.ISTORE, variable: Int) => {
-            val l = new Label
-            super.visitVarInsn(opcode, variable)
-            super.visitVarInsn(Opcodes.ILOAD, 4)
-            super.visitJumpInsn(Opcodes.IFGE, l)
-            super.visitIincInsn(4, 24000)
-            super.visitLabel(l)
-            TimeZone.logger info "- method '" + methodName + "' "
-          }
-          case _ => super.visitVarInsn(opcode, variable)
+  hook("net.minecraft.world.WorldProvider", "func_76563_a"/*calculateCelestialAngle*/) {
+    new MethodVisitor(Opcodes.ASM4, _) {
+      override def visitVarInsn(o: Int, v: Int) = (o, v) match {
+        case (Opcodes.ISTORE, variable) => {
+          val l = new Label
+          super.visitVarInsn(o, v)
+          super.visitVarInsn(Opcodes.ILOAD, 4)
+          super.visitJumpInsn(Opcodes.IFGE, l)
+          super.visitIincInsn(4, 24000)
+          super.visitLabel(l)
+          log
         }
+        case _ => super.visitVarInsn(o, v)
       }
-      case (_, _) => self
     }
   }
 
-  class GuiOverlayDebugVisitor(name: String, cv: ClassWriter) extends TimeZoneClassVisitor(name, cv) {
-    override def visitDeobfMethod(methodName: String, methodDesc: String) = (methodName, methodDesc) match {
-      case ("call", "()Ljava/util/List;") => new MethodVisitor(Opcodes.ASM4, _) {
-        override def visitMethodInsn(opcode: Int, owner: String, name: String, desc: String) = (opcode, owner, name, desc) match {
-          case (Opcodes.INVOKEVIRTUAL, owner, "L" | "getWorldTime", "()J") => {
-            val l = new Label
-            super.visitMethodInsn(opcode, owner, name, desc)
-            super.visitInsn(Opcodes.DUP2)
-            super.visitInsn(Opcodes.LCONST_0)
-            super.visitInsn(Opcodes.LCMP)
-            super.visitJumpInsn(Opcodes.IFGE, l)
-            super.visitLdcInsn(Long.box(24000))
-            super.visitInsn(Opcodes.LSUB);
-            super.visitLabel(l);
-            TimeZone.logger info "- method '" + methodName + "' "
-          }
-          case _ => super.visitMethodInsn(opcode, owner, name, desc)
+  hook("net.minecraft.client.gui.GuiOverlayDebug", "call") {
+    new MethodVisitor(Opcodes.ASM4, _) {
+      override def visitMethodInsn(o: Int, w: String, n: String, d: String) = (o, w, n, d) match {
+        case (Opcodes.INVOKEVIRTUAL, owner, "L" | "getWorldTime", "()J") => {
+          val l = new Label
+          super.visitMethodInsn(o, w, n, d)
+          super.visitInsn(Opcodes.DUP2)
+          super.visitInsn(Opcodes.LCONST_0)
+          super.visitInsn(Opcodes.LCMP)
+          super.visitJumpInsn(Opcodes.IFGE, l)
+          super.visitLdcInsn(Long.box(24000))
+          super.visitInsn(Opcodes.LSUB);
+          super.visitLabel(l);
+          log
         }
+        case _ => super.visitMethodInsn(o, w, n, d)
       }
-      case (_, _) => self
-    }
-  }
-
-  override def getClassVisitor(name: String, basicClass: Array[Byte]) = {
-    name match {
-      case "net.minecraft.world.WorldProvider" => new WorldProviderVisitor(name, _)
-      case "net.minecraft.client.gui.GuiOverlayDebug" => new GuiOverlayDebugVisitor(name, _)
-      case _ => null
     }
   }
 }

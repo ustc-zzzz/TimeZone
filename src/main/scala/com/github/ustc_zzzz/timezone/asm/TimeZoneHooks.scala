@@ -1,16 +1,15 @@
 package com.github.ustc_zzzz.timezone.asm
 
-import com.github.ustc_zzzz.timezone.api.TimeZoneAPI
-import net.minecraft.world.storage.WorldInfo
 import com.github.ustc_zzzz.timezone.api.TimeZoneEvents
-import net.minecraft.util.BlockPos
-import net.minecraft.client.Minecraft
+import com.github.ustc_zzzz.timezone.common.APIDelegate
+
 import net.minecraft.command.ICommandSender
-import net.minecraft.world.World
-import net.minecraftforge.common.MinecraftForge
 import net.minecraft.entity.Entity
 import net.minecraft.tileentity.TileEntity
-import com.github.ustc_zzzz.timezone.common.APIDelegate
+import net.minecraft.util.math.BlockPos
+import net.minecraft.world.World
+import net.minecraft.world.storage.WorldInfo
+import net.minecraftforge.common.MinecraftForge
 
 object TimeZoneHooks {
   def getSyncWorldTimeDelegate(time: Long) = {
@@ -21,34 +20,48 @@ object TimeZoneHooks {
     time - APIDelegate.timeDiffFromRelativeToAbsolute
   }
 
-  def getWorldTimeDelegete(time: Long, worldInfo: WorldInfo) = {
+  def packPacketTimeUpdateDelegate(time: Long) = {
+    if (time <= 0) {
+      val days = time / 24000
+      (time + 1 + (1 - 2 * days) * 24000) & -2L
+    } else {
+      (time - 1) | 1L
+    }
+  }
+  
+  def unpackPacketTimeUpdateDelegate(time: Long) = {
+    if ((time & 1L) == 0) {
+      val days = (time - 1) / 24000
+      if (Math.random < 0.5) time - 1 - (1 + 2 * days) * 24000 else time - (1 + 2 * days) * 24000
+    } else {
+      if (Math.random < 0.5) time else time + 1
+    }
+  }
+  
+  def getWorldTimeDelegate(time: Long, worldInfo: WorldInfo) = {
     time + APIDelegate.timeDiffFromRelative(APIDelegate.position(worldInfo.getSpawnX, worldInfo.getSpawnZ)) + 1000
   }
 
-  def setWorldTimeDelegete(time: Long, worldInfo: WorldInfo) = {
+  def setWorldTimeDelegate(time: Long, worldInfo: WorldInfo) = {
     time - APIDelegate.timeDiffFromRelative(APIDelegate.position(worldInfo.getSpawnX, worldInfo.getSpawnZ)) - 1000
   }
 
-  def handleTimeUpdateDelegate(doDaylightCycle: Boolean) = {
-    Minecraft.getMinecraft.theWorld.getGameRules.setOrCreateGameRule("doDaylightCycle", doDaylightCycle.toString)
-  }
-
   def findChunksForSpawningDelegate(posX: Int, posZ: Int) = {
-    APIDelegate.popPosLocation
-    APIDelegate.pushPosLocation(posX, posZ)
+    APIDelegate.popLocation
+    APIDelegate.pushLocation(APIDelegate.position(posX, posZ))
   }
 
   def updateEntitiesDelegate(e: Entity) = {
     if (e != null) {
       APIDelegate.popLocation
-      APIDelegate.pushLocation(e.posX, e.posZ)
+      APIDelegate.pushLocation(APIDelegate.position(e))
     }
   }
 
   def updateTileEntitiesDelegate(te: TileEntity) = {
     if (te != null && te.getPos != null) {
       APIDelegate.popLocation
-      APIDelegate.pushLocation(te.getPos.getX, te.getPos.getZ)
+      APIDelegate.pushLocation(APIDelegate.position(te.getPos))
     }
   }
 
@@ -69,7 +82,7 @@ object TimeZoneHooks {
   }
 
   def processCommandDelegate(sender: ICommandSender) = {
-    APIDelegate.popPosLocation
-    APIDelegate.pushPosLocation(sender.getPosition.getX, sender.getPosition.getZ)
+    APIDelegate.popLocation
+    APIDelegate.pushLocation(APIDelegate.position(sender.getPosition))
   }
 }

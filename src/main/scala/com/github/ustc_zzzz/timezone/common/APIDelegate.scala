@@ -6,26 +6,26 @@ import java.util.concurrent.Callable
 import com.github.ustc_zzzz.timezone.api.TimeZoneAPI
 
 import net.minecraft.entity.Entity
-import net.minecraft.util.BlockPos
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 object APIDelegate extends TimeZoneAPI.API {
-  case class LocationDelegate(x: Double, z: Double) extends TimeZoneAPI.Position {
+  var tickPMeterX = 60D
+  var tickPMeterZ = 0D
+
+  protected case class LocationDelegate(x: Double, z: Double) extends TimeZoneAPI.Position {
     def getPosX: Int = Math.floor(x).asInstanceOf[Int]
     def getPosZ: Int = Math.floor(z).asInstanceOf[Int]
     def getX: Double = x
     def getZ: Double = z
   }
 
-  case object LocationRelative extends TimeZoneAPI.Position {
-    def getPosX: Int = getPosLocationX
-    def getPosZ: Int = getPosLocationZ
-    def getX: Double = getLocationX
-    def getZ: Double = getLocationZ
+  protected case object LocationRelative extends TimeZoneAPI.Position {
+    def getPosX: Int = Math.floor(topX).asInstanceOf[Int]
+    def getPosZ: Int = Math.floor(topZ).asInstanceOf[Int]
+    def getX: Double = topX
+    def getZ: Double = topZ
   }
-
-  var tickPMeterX = 60D
-  var tickPMeterZ = 0D
 
   protected var pointer = 0
 
@@ -115,39 +115,13 @@ object APIDelegate extends TimeZoneAPI.API {
 
   override def timeDiff(l: TimeZoneAPI.Position, lBase: TimeZoneAPI.Position) = dtp(l) - dtp(lBase)
 
-  override def doWithLocation(x: Double, z: Double, r: Runnable) = doWith(x, z, r.run)
+  override def doWithLocation(l: TimeZoneAPI.Position, r: Runnable) = doWith(l.getX, l.getZ, r.run)
 
-  override def doWithLocation[E](x: Double, z: Double, c: Callable[E]) = doWith(x, z, c.call)
+  override def doWithLocation[E](l: TimeZoneAPI.Position, c: Callable[E]) = doWith(l.getX, l.getZ, c.call)
 
-  override def doWithPosLocation(x: Int, z: Int, r: Runnable) = doWith(x + 0.5D, z + 0.5D, r.run)
-
-  override def doWithPosLocation[E](x: Int, z: Int, c: Callable[E]) = doWith(x + 0.5D, z + 0.5D, c.call)
-
-  override def doWithPositionLocation(l: TimeZoneAPI.Position, r: Runnable) = doWith(l.getX, l.getZ, r.run)
-
-  override def doWithPositionLocation[E](l: TimeZoneAPI.Position, c: Callable[E]) = doWith(l.getX, l.getZ, c.call)
-
-  override def getLocationX() = topX()
-
-  override def getLocationZ() = topZ()
-
-  override def pushLocation(x: Double, z: Double) = push(x, z)
+  override def pushLocation(l: TimeZoneAPI.Position) = push(l.getX, l.getZ)
 
   override def popLocation() = pop()
-
-  override def getPosLocationX() = Math.floor(topX()).asInstanceOf[Int]
-
-  override def getPosLocationZ() = Math.floor(topZ()).asInstanceOf[Int]
-
-  override def pushPosLocation(x: Int, z: Int) = push(x + 0.5D, z + 0.5D)
-
-  override def popPosLocation() = pop()
-
-  override def getPositionLocation() = LocationRelative
-
-  override def pushPositionLocation(l: TimeZoneAPI.Position) = push(l.getX, l.getZ)
-
-  override def popPositionLocation() = pop()
 
   override def stackSize() = 1 + pointer
 }

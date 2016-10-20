@@ -10,18 +10,12 @@ import net.minecraftforge.fml.relauncher.Side
 
 @SideOnly(Side.CLIENT)
 class ClientProxy extends CommonProxy {
-  override def preInit(event: FMLPreInitializationEvent): Unit = {
-    super.preInit(event)
-    // nothing. 
-  }
+  // nothing
+  override def preInit(event: FMLPreInitializationEvent): Unit = super.preInit(event)
 
-  override def init(event: FMLInitializationEvent): Unit = {
-    super.init(event)
-    // nothing. 
-  }
+  // nothing
+  override def init(event: FMLInitializationEvent): Unit = super.init(event)
 
-  override def postInit(event: FMLPostInitializationEvent): Unit = {
-    super.postInit(event)
-    // nothing. 
-  }
+  // nothing
+  override def postInit(event: FMLPostInitializationEvent): Unit = super.postInit(event)
 }
