@@ -185,9 +185,11 @@ public enum TimeZoneAPI
         void pushLocation(Position location);
 
         /**
-         * Pop a position from the stack, matched with {@link #pushLocation}}
+         * Pop a position from the stack, matched with {@link #pushLocation}
+         * 
+         * @return the position popped
          */
-        void popLocation();
+        Position popLocation();
 
         /**
          * Stack size of all threads

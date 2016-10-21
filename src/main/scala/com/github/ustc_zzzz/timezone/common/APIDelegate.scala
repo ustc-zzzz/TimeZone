@@ -42,10 +42,11 @@ object APIDelegate extends API {
 
   protected def dtp(l: Position): Long = Math.round(tickPMeterX * l.getX + tickPMeterZ * l.getZ)
 
-  protected def pop(): Unit = synchronized {
+  protected def pop(): Position = synchronized {
     val id = Thread.currentThread.getId
     def getPointer(p: Int): Int = if (thread(p) == id || p == 0) p else getPointer(p - 1)
     val p = getPointer(pointer)
+    val position = LocationDelegate(xStack(p), zStack(p))
     if (p > 0) {
       pointer -= 1
       for (i <- p to pointer) {
@@ -54,7 +55,7 @@ object APIDelegate extends API {
         thread(i) = thread(i + 1)
       }
     }
-    ()
+    position
   }
 
   protected def push(x: Double, z: Double): Unit = synchronized {
