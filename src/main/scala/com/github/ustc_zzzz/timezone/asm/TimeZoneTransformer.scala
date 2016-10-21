@@ -1,16 +1,13 @@
 package com.github.ustc_zzzz.timezone.asm
 
-import scala.collection.immutable.Map
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 import scala.tools.asm._
 
-import com.github.ustc_zzzz.timezone.TimeZone
+import org.apache.logging.log4j.LogManager
 
 import net.minecraft.launchwrapper.IClassTransformer
-import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper
-import org.apache.logging.log4j.LogManager
 
 object TimeZoneTransformer {
   private val classes: HashSet[String] = HashSet()
@@ -39,9 +36,9 @@ trait TimeZoneTransformer extends IClassTransformer {
   protected def log(information: String) = {
     if (!currentMethod.isEmpty) {
       if (information == null) {
-        TimeZoneTransformer.logger info "- method '" + currentMethod + "'"
+        TimeZoneTransformer.logger.info("- method '" + currentMethod + "'")
       } else {
-        TimeZoneTransformer.logger info "- method '" + currentMethod + "': " + information
+        TimeZoneTransformer.logger.info("- method '" + currentMethod + "': " + information)
       }
     }
     information
@@ -60,22 +57,19 @@ trait TimeZoneTransformer extends IClassTransformer {
           override def visitMethod(a: Int, n: String, d: String, s: String, e: Array[String]) = {
             val methodVisitor = super.visitMethod(a, n, d, s, e)
             currentMethod = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(className, n, d)
-            if (TimeZoneTransformer.enableRuntimeObf) {
-              hooks.get(currentMethod) match {
-                case None => methodVisitor
-                case Some(methodProvider) => methodProvider(methodVisitor)
-              }
-            } else {
-              (hooks :\ methodVisitor) {
-                case ((k, v), visitor) => {
-                  val methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(className, k, d);
-                  if (methodName == currentMethod) v(visitor) else visitor
-                }
+            if (TimeZoneTransformer.enableRuntimeObf) hooks.get(currentMethod) match {
+              case None => methodVisitor
+              case Some(methodProvider) => methodProvider(methodVisitor)
+            } else (hooks :\ methodVisitor) {
+              case ((name, provider), visitor) => {
+                val methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(className, name, d)
+                if (methodName == currentMethod) provider(visitor) else visitor
               }
             }
           }
         }
-        TimeZone.logger info getClass.getSimpleName + ": Inject code into class '" + transformedName + "'"
+        val message = "%s: inject codes into class '%s'".format(getClass.getSimpleName, transformedName)
+        TimeZoneTransformer.logger.info(message)
         classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES)
         classWriter.toByteArray
       }

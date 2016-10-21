@@ -18,8 +18,6 @@ object TimeZone {
   final val modid = "timezone"
   final val version = "@version@"
 
-  final val logger = LogManager.getLogger("TimeZone")
-
   final val proxyServerSide = "com.github.ustc_zzzz.timezone.common.CommonProxy"
   final val proxyClientSide = "com.github.ustc_zzzz.timezone.client.ClientProxy"
 

@@ -1,7 +1,5 @@
 package com.github.ustc_zzzz.timezone.asm
 
-import java.util.Arrays
-
 import org.apache.logging.log4j.LogManager
 
 import com.google.common.eventbus.EventBus
@@ -18,11 +16,11 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin._
 @TransformerExclusions(Array("com.github.ustc_zzzz.timezone.asm."))
 class TimeZoneCore extends IFMLLoadingPlugin {
   override def getASMTransformerClass = Array(
-      "com.github.ustc_zzzz.timezone.asm.transformer.TickUpdateTransformer",
       "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer",
-      "com.github.ustc_zzzz.timezone.asm.transformer.ViewTransformer",
+      "com.github.ustc_zzzz.timezone.asm.transformer.TickUpdateTransformer",
+      "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer",
       "com.github.ustc_zzzz.timezone.asm.transformer.TimeSyncTransformer",
-      "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer")
+      "com.github.ustc_zzzz.timezone.asm.transformer.ViewTransformer")
 
   override def getAccessTransformerClass = null
 
@@ -39,19 +37,18 @@ class TimeZoneModContainer extends DummyModContainer(new ModMetadata) with IFMLC
   metadata.modId = "timezone-core"
   metadata.name = "TimeZone Core"
   metadata.version = "@version@"
-  metadata.authorList = Arrays asList "ustc_zzzz"
-  metadata.description = "TimeZone mod core, as the pre-loading mod."
+  metadata.authorList = java.util.Arrays asList "ustc_zzzz"
+  metadata.description = "TimeZone mod core, as the pre-loading mod. "
   metadata.credits = "Mojang AB, and the Forge and FML guys. "
 
   override def call = {
-    TimeZoneTransformer.logger info "Coremod loaded, version " + metadata.version + ". "
+    TimeZoneTransformer.logger.info("Coremod loaded, version " + metadata.version)
     TimeZoneTransformer.loadClasses
     null
   }
 
   override def injectData(data: java.util.Map[String, Object]) = {
     TimeZoneTransformer.enableRuntimeObf = data.get("runtimeDeobfuscationEnabled").asInstanceOf[Boolean]
-    println(TimeZoneTransformer.enableRuntimeObf)
   }
 
   override def registerBus(bus: EventBus, controller: LoadController) = true

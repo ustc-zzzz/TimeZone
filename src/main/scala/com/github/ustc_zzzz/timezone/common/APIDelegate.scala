@@ -3,24 +3,24 @@ package com.github.ustc_zzzz.timezone.common
 import java.util.Arrays
 import java.util.concurrent.Callable
 
-import com.github.ustc_zzzz.timezone.api.TimeZoneAPI
+import com.github.ustc_zzzz.timezone.api.TimeZoneAPI._
 
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-object APIDelegate extends TimeZoneAPI.API {
+object APIDelegate extends API {
   var tickPMeterX = 60D
   var tickPMeterZ = 0D
 
-  protected case class LocationDelegate(x: Double, z: Double) extends TimeZoneAPI.Position {
+  protected case class LocationDelegate(x: Double, z: Double) extends Position {
     def getPosX: Int = Math.floor(x).asInstanceOf[Int]
     def getPosZ: Int = Math.floor(z).asInstanceOf[Int]
     def getX: Double = x
     def getZ: Double = z
   }
 
-  protected case object LocationRelative extends TimeZoneAPI.Position {
+  protected case object LocationRelative extends Position {
     def getPosX: Int = Math.floor(topX).asInstanceOf[Int]
     def getPosZ: Int = Math.floor(topZ).asInstanceOf[Int]
     def getX: Double = topX
@@ -40,7 +40,7 @@ object APIDelegate extends TimeZoneAPI.API {
 
   protected def dtr(): Long = Math.round(tickPMeterX * topX + tickPMeterZ * topZ)
 
-  protected def dtp(l: TimeZoneAPI.Position): Long = Math.round(tickPMeterX * l.getX + tickPMeterZ * l.getZ)
+  protected def dtp(l: Position): Long = Math.round(tickPMeterX * l.getX + tickPMeterZ * l.getZ)
 
   protected def pop(): Unit = synchronized {
     val id = Thread.currentThread.getId
@@ -71,13 +71,13 @@ object APIDelegate extends TimeZoneAPI.API {
     ()
   }
 
-  protected def topX(): Double = synchronized {
+  protected def topX(): Double = {
     val id = Thread.currentThread.getId
     def getFromPointer(p: Int): Double = if (thread(p) == id || p == 0) xStack(p) else getFromPointer(p - 1)
     getFromPointer(pointer)
   }
 
-  protected def topZ(): Double = synchronized {
+  protected def topZ(): Double = {
     val id = Thread.currentThread.getId
     def getFromPointer(p: Int): Double = if (thread(p) == id || p == 0) zStack(p) else getFromPointer(p - 1)
     getFromPointer(pointer)
@@ -99,29 +99,29 @@ object APIDelegate extends TimeZoneAPI.API {
 
   override def getAbsoluteTime(world: World) = world.getWorldTime - dtr
 
-  override def getTime(l: TimeZoneAPI.Position, world: World) = world.getWorldTime - dtr + dtp(l)
+  override def getTime(l: Position, world: World) = world.getWorldTime - dtr + dtp(l)
 
   override def setRelativeTime(world: World, relativeTime: Long) = world.setWorldTime(relativeTime)
 
   override def setAbsoluteTime(world: World, absoluteTime: Long) = world.setWorldTime(absoluteTime + dtr)
 
-  override def setTime(l: TimeZoneAPI.Position, world: World, time: Long) = world.setWorldTime(time + dtr - dtp(l))
+  override def setTime(l: Position, world: World, time: Long) = world.setWorldTime(time + dtr - dtp(l))
 
   override def timeDiffFromRelativeToAbsolute() = dtr
 
-  override def timeDiffFromRelative(lBase: TimeZoneAPI.Position) = dtr - dtp(lBase)
+  override def timeDiffFromRelative(lBase: Position) = dtr - dtp(lBase)
 
-  override def timeDiffToAbsoulte(l: TimeZoneAPI.Position) = dtp(l)
+  override def timeDiffToAbsoulte(l: Position) = dtp(l)
 
-  override def timeDiff(l: TimeZoneAPI.Position, lBase: TimeZoneAPI.Position) = dtp(l) - dtp(lBase)
+  override def timeDiff(l: Position, lBase: Position) = dtp(l) - dtp(lBase)
 
-  override def doWithLocation(l: TimeZoneAPI.Position, r: Runnable) = doWith(l.getX, l.getZ, r.run)
+  override def doWithLocation(l: Position, r: Runnable) = doWith(l.getX, l.getZ, r.run)
 
-  override def doWithLocation[E](l: TimeZoneAPI.Position, c: Callable[E]) = doWith(l.getX, l.getZ, c.call)
+  override def doWithLocation[E](l: Position, c: Callable[E]) = doWith(l.getX, l.getZ, c.call)
 
-  override def pushLocation(l: TimeZoneAPI.Position) = push(l.getX, l.getZ)
+  override def pushLocation(l: Position) = push(l.getX, l.getZ)
 
-  override def popLocation() = pop()
+  override def popLocation() = pop
 
   override def stackSize() = 1 + pointer
 }

@@ -45,14 +45,14 @@ public enum TimeZoneAPI
     }
 
     /**
-     * API interface, use field {@link TimeZoneAPI#INSTANCE} to get the
-     * instance. There is a thread-specific stack which stores several
-     * positions. When either {@link net.minecraft.world.World#getWorldTime}
-     * method or {@link net.minecraft.world.World#setWorldTime} method is
-     * invoked, it is related the local time of the position on the top of the
-     * stack of the specific thread. Several methods is related to the
-     * operations of push, and pop. Besides, the API also provides several
-     * convenient methods which deal with time difference.
+     * API interface, use field {@link TimeZoneAPI#INSTANCE} to retrieve the
+     * instance. There is a thread-local stack which stores several positions.
+     * When either {@link net.minecraft.world.World#getWorldTime} method or
+     * {@link net.minecraft.world.World#setWorldTime} method is invoked, the
+     * return value is related the local time of the position on the top of the
+     * stack of the current thread. Several methods can be used to set the
+     * position in order to set the local time, such as push and pop. Besides,
+     * the API also provides several convenient methods for time difference.
      */
     public static interface API
     {
@@ -135,40 +135,44 @@ public enum TimeZoneAPI
         void setTime(Position location, World world, long time);
 
         /**
-         * the relative time subtract the absolute time
+         * The relative time subtract the absolute time. The world instance here
+         * is not needed
          * 
          * @return getRelativeTime(world) - getAbsoluteTime(world)
          */
         long timeDiffFromRelativeToAbsolute();
 
         /**
-         * the relative time subtract the time from the specific position
+         * The relative time subtract the time from the specific position. The
+         * world instance here is not needed
          * 
-         * @return getRelativeTime - getTime(locationBase)
+         * @return getRelativeTime(world) - getTime(locationBase, world)
          */
         long timeDiffFromRelative(Position locationBase);
 
         /**
-         * the time from the specific position subtract the absolute time
+         * The time from the specific position subtract the absolute time. The
+         * world instance here is not needed
          * 
-         * @return getTime(location) - getAbsoluteTime()
+         * @return getTime(location, world) - getAbsoluteTime(world)
          */
         long timeDiffToAbsoulte(Position location);
 
         /**
-         * the time from the specific position subtract another
+         * The time from the specific position subtract another. The world
+         * instance here is not needed
          * 
-         * @return getTime(location) - getTime(locationBase)
+         * @return getTime(location, world) - getTime(locationBase, world)
          */
         long timeDiff(Position location, Position locationBase);
 
         /**
-         * Equivalent to: pushLocation; runnable; popLocation
+         * Equivalent to: pushLocation(location); runnable.run; popLocation()
          */
         void doWithLocation(Position location, Runnable runnable);
 
         /**
-         * Equivalent to: pushPosisionLocation; callable; popPosisionLocation
+         * Equivalent to: pushLocation(location); callable.call; popLocation()
          * 
          * @return the return value of the function
          * @throws Exception exception from the callable

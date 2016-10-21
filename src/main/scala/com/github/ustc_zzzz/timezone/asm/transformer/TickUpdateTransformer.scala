@@ -29,7 +29,7 @@ class TickUpdateTransformer extends TimeZoneTransformer {
 
   hook("net.minecraft.world.World", "func_175699_k"/*getLight*/, "func_175721_c"/*getLight*/) {
     new MethodVisitor(Opcodes.ASM4, _) {
-      override def visitCode = {
+      override def visitCode() = {
         super.visitCode()
         super.visitVarInsn(Opcodes.ALOAD, 0)
         super.visitVarInsn(Opcodes.ALOAD, 1)
@@ -51,7 +51,7 @@ class TickUpdateTransformer extends TimeZoneTransformer {
 
   hook("net.minecraft.world.World", "func_175657_ab"/*getSkylightSubtracted*/) {
     new MethodVisitor(Opcodes.ASM4, _) {
-      override def visitCode = {
+      override def visitCode() = {
         super.visitCode()
         super.visitVarInsn(Opcodes.ALOAD, 0)
         super.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
