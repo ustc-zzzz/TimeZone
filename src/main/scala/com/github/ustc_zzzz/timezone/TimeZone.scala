@@ -11,6 +11,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.Mod.EventHandler
+import net.minecraftforge.fml.common.event.FMLConstructionEvent
+import com.github.ustc_zzzz.timezone.asm.TimeZoneTransformer
 
 @Mod(modid = TimeZone.modid, version = TimeZone.version, modLanguage = "scala",
   acceptedMinecraftVersions = "1.10.2", dependencies = "required-after:timezone-core@")

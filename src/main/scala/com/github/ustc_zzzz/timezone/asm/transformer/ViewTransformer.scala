@@ -25,7 +25,7 @@ class ViewTransformer extends TimeZoneTransformer {
   hook("net.minecraft.client.gui.GuiOverlayDebug", "call") {
     new MethodVisitor(Opcodes.ASM4, _) {
       override def visitMethodInsn(o: Int, w: String, n: String, d: String) = (o, w, n, d) match {
-        case (Opcodes.INVOKEVIRTUAL, owner, "L" | "getWorldTime", "()J") => {
+        case (Opcodes.INVOKEVIRTUAL, owner, "Q" | "getWorldTime", "()J") => {
           val l = new Label
           super.visitMethodInsn(o, w, n, d)
           super.visitInsn(Opcodes.DUP2)

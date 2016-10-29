@@ -10,13 +10,13 @@ class TickUpdateTransformer extends TimeZoneTransformer {
   hook("net.minecraft.world.World", "func_72939_s"/*updateEntities*/) {
     new MethodVisitor(Opcodes.ASM4, _) {
       override def visitTypeInsn(o: Int, t: String) = (o, t) match {
-        case (Opcodes.CHECKCAST, "net/minecraft/entity/Entity") => {
+        case (Opcodes.CHECKCAST, "rw" | "net/minecraft/entity/Entity") => {
           super.visitTypeInsn(o, t)
           super.visitInsn(Opcodes.DUP)
           super.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
             log("updateEntitiesDelegate"), "(Lnet/minecraft/entity/Entity;)V")
         }
-        case (Opcodes.CHECKCAST, "net/minecraft/tileentity/TileEntity") => {
+        case (Opcodes.CHECKCAST, "aqk" | "net/minecraft/tileentity/TileEntity") => {
           super.visitTypeInsn(o, t)
           super.visitInsn(Opcodes.DUP)
           super.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",

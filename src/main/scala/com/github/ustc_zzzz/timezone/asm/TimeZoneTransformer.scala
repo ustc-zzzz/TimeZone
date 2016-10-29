@@ -7,12 +7,15 @@ import scala.tools.asm._
 import org.apache.logging.log4j.LogManager
 
 import net.minecraft.launchwrapper.IClassTransformer
+import net.minecraft.launchwrapper.Launch
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper
+import net.minecraftforge.fml.common.Mod.EventHandler
+import net.minecraftforge.fml.common.event.FMLConstructionEvent
 
 object TimeZoneTransformer {
   private val classes: HashSet[String] = HashSet()
   
-  private val classLoader = getClass.getClassLoader
+  private val classLoader = Launch.classLoader
   
   private[asm] var enableRuntimeObf = false;
   
@@ -35,11 +38,11 @@ trait TimeZoneTransformer extends IClassTransformer {
   
   protected def log(information: String) = {
     if (!currentMethod.isEmpty) {
-      if (information == null) {
-        TimeZoneTransformer.logger.info("- method '" + currentMethod + "'")
+      TimeZoneTransformer.logger.info(if (information == null) {
+        "- method '%s'".format(currentMethod)
       } else {
-        TimeZoneTransformer.logger.info("- method '" + currentMethod + "': " + information)
-      }
+        "- method '%s': %s".format(currentMethod, information)
+      })
     }
     information
   }
@@ -68,8 +71,7 @@ trait TimeZoneTransformer extends IClassTransformer {
             }
           }
         }
-        val message = "%s: inject codes into class '%s'".format(getClass.getSimpleName, transformedName)
-        TimeZoneTransformer.logger.info(message)
+        TimeZoneTransformer.logger.info("%s: inject codes into class '%s'".format(getClass.getSimpleName, transformedName))
         classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES)
         classWriter.toByteArray
       }
