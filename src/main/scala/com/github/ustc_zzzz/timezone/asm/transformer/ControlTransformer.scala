@@ -5,9 +5,9 @@ import scala.tools.asm._
 import com.github.ustc_zzzz.timezone.asm.TimeZoneTransformer
 
 class ControlTransformer extends TimeZoneTransformer {
-  hook("net.minecraft.command.CommandTime", "func_71515_b"/*execute*/) {
+  hook("net.minecraft.command.CommandTime", "func_184881_a"/*execute*/) {
     new MethodVisitor(Opcodes.ASM4, _) {
-      override def visitCode = {
+      override def visitCode() = {
         super.visitCode()
         super.visitVarInsn(Opcodes.ALOAD, 1)
         super.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",

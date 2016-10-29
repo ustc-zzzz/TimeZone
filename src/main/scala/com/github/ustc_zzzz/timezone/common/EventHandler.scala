@@ -66,7 +66,7 @@ object EventHandler {
   def onWorldTick(event: TickEvent.WorldTickEvent) = {
     // For protection. 
     event.phase match {
-      case TickEvent.Phase.START => api.pushLocation(api.position(0D, 0D))
+      case TickEvent.Phase.START => api.pushLocation(api.absolute())
       case TickEvent.Phase.END => api.popLocation
     }
   }

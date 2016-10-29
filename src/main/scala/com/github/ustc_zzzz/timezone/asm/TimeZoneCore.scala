@@ -1,7 +1,5 @@
 package com.github.ustc_zzzz.timezone.asm
 
-import java.util.Arrays
-
 import org.apache.logging.log4j.LogManager
 
 import com.google.common.eventbus.EventBus
@@ -12,47 +10,46 @@ import net.minecraftforge.fml.common.ModMetadata
 import net.minecraftforge.fml.relauncher.IFMLCallHook
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin._
+import net.minecraft.launchwrapper.IClassTransformer
 
 @Name("TimeZone")
 @MCVersion("1.10.2")
 @TransformerExclusions(Array("com.github.ustc_zzzz.timezone.asm."))
 class TimeZoneCore extends IFMLLoadingPlugin {
   override def getASMTransformerClass = Array(
-      "com.github.ustc_zzzz.timezone.asm.transformer.TickUpdateTransformer",
       "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer",
-      "com.github.ustc_zzzz.timezone.asm.transformer.ViewTransformer",
+      "com.github.ustc_zzzz.timezone.asm.transformer.TickUpdateTransformer",
+      "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer",
       "com.github.ustc_zzzz.timezone.asm.transformer.TimeSyncTransformer",
-      "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer")
+      "com.github.ustc_zzzz.timezone.asm.transformer.ViewTransformer")
 
-  override def getAccessTransformerClass = null
+  override def getAccessTransformerClass = "com.github.ustc_zzzz.timezone.asm.TimeZoneAccessTransformer"
 
   override def getModContainerClass = "com.github.ustc_zzzz.timezone.asm.TimeZoneModContainer"
 
-  override def getSetupClass = getModContainerClass
+  override def getSetupClass = null
 
-  override def injectData(data: java.util.Map[String, Object]) = ()
+  override def injectData(data: java.util.Map[String, Object]) = {
+    TimeZoneTransformer.enableRuntimeObf = data.get("runtimeDeobfuscationEnabled").asInstanceOf[Boolean]
+  }
 }
 
-class TimeZoneModContainer extends DummyModContainer(new ModMetadata) with IFMLCallHook {
+class TimeZoneModContainer extends DummyModContainer(new ModMetadata) {
   final val metadata = getMetadata
 
   metadata.modId = "timezone-core"
   metadata.name = "TimeZone Core"
   metadata.version = "@version@"
-  metadata.authorList = Arrays asList "ustc_zzzz"
-  metadata.description = "TimeZone mod core, as the pre-loading mod."
+  metadata.authorList = java.util.Arrays asList "ustc_zzzz"
+  metadata.description = "TimeZone mod core, as the pre-loading mod. "
   metadata.credits = "Mojang AB, and the Forge and FML guys. "
 
-  override def call = {
-    TimeZoneTransformer.logger info "Coremod loaded, version " + metadata.version + ". "
-    TimeZoneTransformer.loadClasses
-    null
-  }
-
-  override def injectData(data: java.util.Map[String, Object]) = {
-    TimeZoneTransformer.enableRuntimeObf = data.get("runtimeDeobfuscationEnabled").asInstanceOf[Boolean]
-    println(TimeZoneTransformer.enableRuntimeObf)
-  }
-
   override def registerBus(bus: EventBus, controller: LoadController) = true
+}
+
+class TimeZoneAccessTransformer extends IClassTransformer {
+  TimeZoneTransformer.logger.info("Coremod version @version@")
+  TimeZoneTransformer.loadClasses
+  
+  override def transform(name: String, transformedName: String, basicClass: Array[Byte]) = basicClass
 }
