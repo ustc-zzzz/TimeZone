@@ -25,10 +25,26 @@ class TimeSyncTransformer extends TimeZoneTransformer {
       override def visitInsn(o: Int) = o match {
         case Opcodes.LRETURN => {
           super.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
+            log("unpackPacketTimeUpdateDelegate"), "(J)J")
+          super.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
             log("getSyncWorldTimeDelegate"), "(J)J")
+          super.visitMethodInsn(Opcodes.INVOKESTATIC, "com/github/ustc_zzzz/timezone/asm/TimeZoneHooks",
+            log("packPacketTimeUpdateDelegate"), "(J)J")
           super.visitInsn(o)
         }
         case _ => super.visitInsn(o)
+      }
+    }
+  }
+  
+  hook("net.minecraft.client.multiplayer.WorldClient", "func_72835_b"/*tick*/) {
+    new MethodVisitor(Opcodes.ASM4, _) {
+      override def visitMethodInsn(o: Int, w: String, n: String, d: String) = (o, w, n, d) match {
+        case (Opcodes.INVOKEVIRTUAL, owner, "b" | "setWorldTime", "(J)V") => {
+          super.visitMethodInsn(Opcodes.INVOKESPECIAL, "net/minecraft/world/World", n, d)
+          log
+        }
+        case _ => super.visitMethodInsn(o, w, n, d)
       }
     }
   }
