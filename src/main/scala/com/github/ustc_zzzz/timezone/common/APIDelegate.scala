@@ -25,6 +25,7 @@ object APIDelegate extends API {
     def getPosZ: Int = Math.floor(topZ).asInstanceOf[Int]
     def getX: Double = topX
     def getZ: Double = topZ
+    override def toString = f"LocationRelative($getX,$getZ)"
   }
 
   protected var pointer = 0

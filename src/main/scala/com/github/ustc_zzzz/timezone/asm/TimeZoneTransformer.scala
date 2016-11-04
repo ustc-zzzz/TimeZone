@@ -1,27 +1,32 @@
 package com.github.ustc_zzzz.timezone.asm
 
 import scala.collection.mutable.HashMap
-import scala.collection.mutable.HashSet
+import scala.collection.mutable.TreeSet
 import scala.tools.asm._
 
 import org.apache.logging.log4j.LogManager
 
 import net.minecraft.launchwrapper.IClassTransformer
 import net.minecraft.launchwrapper.Launch
+import net.minecraft.launchwrapper.LaunchClassLoader
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper
-import net.minecraftforge.fml.common.Mod.EventHandler
-import net.minecraftforge.fml.common.event.FMLConstructionEvent
 
 object TimeZoneTransformer {
-  private val classes: HashSet[String] = HashSet()
+  private val classes: TreeSet[String] = TreeSet()
   
-  private val classLoader = Launch.classLoader
+  private val classLoader: LaunchClassLoader = Launch.classLoader
+  
+  private def loadClass(c: String): Unit = try {
+    classLoader.findClass(c)
+  } catch {
+    case e: ClassNotFoundException => TimeZoneTransformer.logger.info("{}: skip class '{}'", "TimeZoneTransformer", c)
+  }
   
   private[asm] var enableRuntimeObf = false;
   
   private[asm] def logger = LogManager.getLogger("TimeZone")
   
-  private[asm] def loadClasses = classes foreach { Class.forName(_, false, classLoader) }
+  private[asm] def loadClasses = classes foreach loadClass
 }
 
 trait TimeZoneTransformer extends IClassTransformer {
@@ -38,11 +43,11 @@ trait TimeZoneTransformer extends IClassTransformer {
   
   protected def log(information: String) = {
     if (!currentMethod.isEmpty) {
-      TimeZoneTransformer.logger.info(if (information == null) {
-        "- method '%s'".format(currentMethod)
+      if (information == null) {
+        TimeZoneTransformer.logger.debug("- method '{}'", currentMethod)
       } else {
-        "- method '%s': %s".format(currentMethod, information)
-      })
+        TimeZoneTransformer.logger.debug("- method '{}': {}", currentMethod, information)
+      }
     }
     information
   }
@@ -71,7 +76,7 @@ trait TimeZoneTransformer extends IClassTransformer {
             }
           }
         }
-        TimeZoneTransformer.logger.info("%s: inject codes into class '%s'".format(getClass.getSimpleName, transformedName))
+        TimeZoneTransformer.logger.info("{}: inject codes into class '{}'", getClass.getSimpleName, transformedName)
         classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES)
         classWriter.toByteArray
       }
