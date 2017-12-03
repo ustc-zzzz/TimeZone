@@ -44,7 +44,7 @@ class TimeZoneModContainer extends DummyModContainer(new ModMetadata) {
 
 class TimeZoneAccessTransformer extends IClassTransformer {
   TimeZoneTransformer.logger.info("Coremod version @version@")
-  TimeZoneTransformer.loadClasses
+  TimeZoneTransformer.loadClasses()
 
   override def transform(name: String, transformedName: String, basicClass: Array[Byte]) = basicClass
 }

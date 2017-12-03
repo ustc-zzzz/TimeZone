@@ -2,7 +2,7 @@ package com.github.ustc_zzzz.timezone.asm
 
 import net.minecraft.launchwrapper.{IClassTransformer, Launch, LaunchClassLoader}
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper
-import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.{LogManager, Logger}
 import org.objectweb.asm._
 
 import scala.collection.mutable
@@ -12,17 +12,23 @@ object TimeZoneTransformer {
 
   private val classLoader: LaunchClassLoader = Launch.classLoader
 
+  private var logCount: Int = 0
+
   private def loadClass(c: String): Unit = try classLoader.findClass(c) catch {
     case e: ClassNotFoundException =>
-      TimeZoneTransformer.logger.info("{}: skip class '{}'", Seq("TimeZoneTransformer", c): _*)
-      TimeZoneTransformer.logger.debug("TimeZoneTransformer: ", e)
+      logger.info("{}: skip class '{}'", Seq("TimeZoneTransformer", c): _*)
+      logger.debug("TimeZoneTransformer: ", e)
   }
 
-  private[asm] var enableRuntimeObf = false
+  private[asm] var enableRuntimeObf: Boolean = false
 
-  private[asm] def logger = LogManager.getLogger("TimeZone")
+  private[asm] def logger: Logger = LogManager.getLogger("TimeZone")
 
-  private[asm] def loadClasses = classes foreach loadClass
+  private[asm] def loadClasses(): Unit = {
+    logCount = 0
+    classes foreach loadClass
+    logger.info("Totally {} injection points", logCount)
+  }
 }
 
 trait TimeZoneTransformer extends IClassTransformer {
@@ -39,14 +45,16 @@ trait TimeZoneTransformer extends IClassTransformer {
 
   protected def log(information: String) = {
     if (!currentMethod.isEmpty && information != null) {
-        TimeZoneTransformer.logger.debug("- method '{}': {}", Seq(currentMethod, information): _*)
+      TimeZoneTransformer.logger.debug("- method '{}': {}", Seq(currentMethod, information): _*)
+      TimeZoneTransformer.logCount += 1
     }
     information
   }
 
   protected def log = {
     if (!currentMethod.isEmpty) {
-        TimeZoneTransformer.logger.debug("- method '{}'", Seq(currentMethod): _*)
+      TimeZoneTransformer.logger.debug("- method '{}'", Seq(currentMethod): _*)
+      TimeZoneTransformer.logCount += 1
     }
     ()
   }
