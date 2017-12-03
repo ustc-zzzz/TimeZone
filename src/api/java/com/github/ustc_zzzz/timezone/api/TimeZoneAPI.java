@@ -33,7 +33,7 @@ public enum TimeZoneAPI
     /**
      * An interface for position of X axis and Z axis.
      */
-    public static interface Position
+    public interface Position
     {
         double getX();
 
@@ -54,7 +54,7 @@ public enum TimeZoneAPI
      * position in order to set the local time, such as push and pop. Besides,
      * the API also provides several convenient methods for time difference.
      */
-    public static interface API
+    public interface API
     {
         /**
          * Relative position
@@ -156,7 +156,7 @@ public enum TimeZoneAPI
          * 
          * @return getTime(location, world) - getAbsoluteTime(world)
          */
-        long timeDiffToAbsoulte(Position location);
+        long timeDiffToAbsolute(Position location);
 
         /**
          * The time from the specific position subtract another. The world

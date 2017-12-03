@@ -1,85 +1,84 @@
 package com.github.ustc_zzzz.timezone.asm
 
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.TreeSet
-import scala.tools.asm._
-
-import org.apache.logging.log4j.LogManager
-
-import net.minecraft.launchwrapper.IClassTransformer
-import net.minecraft.launchwrapper.Launch
-import net.minecraft.launchwrapper.LaunchClassLoader
+import net.minecraft.launchwrapper.{IClassTransformer, Launch, LaunchClassLoader}
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper
+import org.apache.logging.log4j.LogManager
+import org.objectweb.asm._
+
+import scala.collection.mutable
 
 object TimeZoneTransformer {
-  private val classes: TreeSet[String] = TreeSet()
-  
+  private val classes: mutable.TreeSet[String] = mutable.TreeSet()
+
   private val classLoader: LaunchClassLoader = Launch.classLoader
-  
-  private def loadClass(c: String): Unit = try {
-    classLoader.findClass(c)
-  } catch {
-    case e: ClassNotFoundException => TimeZoneTransformer.logger.info("{}: skip class '{}'", "TimeZoneTransformer", c)
+
+  private def loadClass(c: String): Unit = try classLoader.findClass(c) catch {
+    case e: ClassNotFoundException =>
+      TimeZoneTransformer.logger.info("{}: skip class '{}'", Seq("TimeZoneTransformer", c): _*)
+      TimeZoneTransformer.logger.debug("TimeZoneTransformer: ", e)
   }
-  
-  private[asm] var enableRuntimeObf = false;
-  
+
+  private[asm] var enableRuntimeObf = false
+
   private[asm] def logger = LogManager.getLogger("TimeZone")
-  
+
   private[asm] def loadClasses = classes foreach loadClass
 }
 
 trait TimeZoneTransformer extends IClassTransformer {
-  private val methods: HashMap[String, Map[String, MethodVisitor => MethodVisitor]] = HashMap()
-  
+  private val methods: mutable.HashMap[String, Map[String, MethodVisitor => MethodVisitor]] = mutable.HashMap()
+
   private var currentMethod: String = ""
-  
+
   protected def hook(className: String, methodNames: String*)(methodProvider: MethodVisitor => MethodVisitor) = {
-    val origin = methods.get(className).getOrElse(Map.empty[String, MethodVisitor => MethodVisitor])
+    val origin = methods.getOrElse(className, Map.empty[String, MethodVisitor => MethodVisitor])
     methods.put(className, (methodNames :\ origin) { (s, m) => m + ((s, methodProvider)) })
     TimeZoneTransformer.classes += className
     ()
   }
-  
+
   protected def log(information: String) = {
-    if (!currentMethod.isEmpty) {
-      if (information == null) {
-        TimeZoneTransformer.logger.debug("- method '{}'", currentMethod)
-      } else {
-        TimeZoneTransformer.logger.debug("- method '{}': {}", currentMethod, information)
-      }
+    if (!currentMethod.isEmpty && information != null) {
+        TimeZoneTransformer.logger.debug("- method '{}': {}", Seq(currentMethod, information): _*)
     }
     information
   }
-  
-  protected def log: String = log(null)
-  
+
+  protected def log = {
+    if (!currentMethod.isEmpty) {
+        TimeZoneTransformer.logger.debug("- method '{}'", Seq(currentMethod): _*)
+    }
+    ()
+  }
+
   override def transform(name: String, transformedName: String, basicClass: Array[Byte]) = {
-    methods.get(transformedName) match {
-      case None => basicClass
-      case Some(hooks) => {
-        val classReader = new ClassReader(basicClass)
-        val classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
-        val classVisitor = new ClassVisitor(Opcodes.ASM4, classWriter) {
-          val className = FMLDeobfuscatingRemapper.INSTANCE.unmap(name.replace('.', '/'))
-          override def visitMethod(a: Int, n: String, d: String, s: String, e: Array[String]) = {
-            val methodVisitor = super.visitMethod(a, n, d, s, e)
-            currentMethod = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(className, n, d)
-            if (TimeZoneTransformer.enableRuntimeObf) hooks.get(currentMethod) match {
-              case None => methodVisitor
-              case Some(methodProvider) => methodProvider(methodVisitor)
-            } else (hooks :\ methodVisitor) {
-              case ((name, provider), visitor) => {
-                val methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(className, name, d)
-                if (methodName == currentMethod) provider(visitor) else visitor
-              }
-            }
+    def generateVisitor(hooks: Map[String, MethodVisitor => MethodVisitor])(classWriter: ClassWriter): ClassVisitor = {
+      new ClassVisitor(Opcodes.ASM4, classWriter) {
+        val className = FMLDeobfuscatingRemapper.INSTANCE.unmap(name.replace('.', '/'))
+
+        override def visitMethod(a: Int, n: String, d: String, s: String, e: Array[String]) = {
+          val methodVisitor = super.visitMethod(a, n, d, s, e)
+          currentMethod = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(className, n, d)
+          if (TimeZoneTransformer.enableRuntimeObf) hooks.get(currentMethod) match {
+            case None => methodVisitor
+            case Some(methodProvider) => methodProvider(methodVisitor)
+          } else (hooks :\ methodVisitor) {
+            case ((methodName, methodProvider), visitor) =>
+              val mappedName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(className, methodName, d)
+              if (mappedName == currentMethod) methodProvider(visitor) else visitor
           }
         }
-        TimeZoneTransformer.logger.info("{}: inject codes into class '{}'", getClass.getSimpleName, transformedName)
-        classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES)
-        classWriter.toByteArray
       }
+    }
+
+    methods.get(transformedName) match {
+      case None => basicClass
+      case Some(hooks) =>
+        val classReader = new ClassReader(basicClass)
+        val classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES)
+        TimeZoneTransformer.logger.info("{}: inject codes into class '{}'", Seq(getClass.getSimpleName, transformedName): _*)
+        classReader.accept(generateVisitor(hooks)(classWriter), ClassReader.EXPAND_FRAMES)
+        classWriter.toByteArray
     }
   }
 }

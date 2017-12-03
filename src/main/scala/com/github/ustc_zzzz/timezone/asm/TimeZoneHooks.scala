@@ -2,7 +2,6 @@ package com.github.ustc_zzzz.timezone.asm
 
 import com.github.ustc_zzzz.timezone.api.TimeZoneEvents
 import com.github.ustc_zzzz.timezone.common.APIDelegate
-
 import net.minecraft.command.ICommandSender
 import net.minecraft.entity.Entity
 import net.minecraft.tileentity.TileEntity
@@ -28,7 +27,7 @@ object TimeZoneHooks {
       (time - 1) | 1L
     }
   }
-  
+
   def unpackPacketTimeUpdateDelegate(time: Long) = {
     if ((time & 1L) == 0) {
       val days = (time - 1) / 24000
@@ -37,7 +36,7 @@ object TimeZoneHooks {
       if (Math.random < 0.5) time else time + 1
     }
   }
-  
+
   def getWorldTimeDelegate(time: Long, worldInfo: WorldInfo) = {
     time + APIDelegate.timeDiffFromRelative(APIDelegate.position(worldInfo.getSpawnX, worldInfo.getSpawnZ)) + 1000
   }
@@ -47,20 +46,20 @@ object TimeZoneHooks {
   }
 
   def findChunksForSpawningDelegate(posX: Int, posZ: Int) = {
-    APIDelegate.popLocation
+    APIDelegate.popLocation()
     APIDelegate.pushLocation(APIDelegate.position(posX, posZ))
   }
 
   def updateEntitiesDelegate(e: Entity) = {
     if (e != null) {
-      APIDelegate.popLocation
+      APIDelegate.popLocation()
       APIDelegate.pushLocation(APIDelegate.position(e))
     }
   }
 
   def updateTileEntitiesDelegate(te: TileEntity) = {
     if (te != null && te.getPos != null) {
-      APIDelegate.popLocation
+      APIDelegate.popLocation()
       APIDelegate.pushLocation(APIDelegate.position(te.getPos))
     }
   }
@@ -68,7 +67,7 @@ object TimeZoneHooks {
   def preBlockPosLightDelegate(world: World, pos: BlockPos) = {
     val event = new TimeZoneEvents.BlockPosLightEvent.Pre(pos)
     MinecraftForge.EVENT_BUS.post(event)
-    world.calculateInitialSkylight
+    world.calculateInitialSkylight()
   }
 
   def postBlockPosLightDelegate(light: Int, pos: BlockPos) = {
@@ -78,11 +77,11 @@ object TimeZoneHooks {
   }
 
   def getSkylightSubtractedDelegate(world: World) = {
-    world.calculateInitialSkylight
+    world.calculateInitialSkylight()
   }
 
   def processCommandDelegate(sender: ICommandSender) = {
-    APIDelegate.popLocation
+    APIDelegate.popLocation()
     APIDelegate.pushLocation(APIDelegate.position(sender.getPosition))
   }
 }

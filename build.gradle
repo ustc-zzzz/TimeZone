@@ -7,15 +7,15 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
 
 apply plugin: 'scala'
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 version = mod_version
 group = "com.github.ustc_zzzz"
@@ -44,6 +44,8 @@ minecraft {
     
     replace "@version@", project.version
     replace "@apiversion@", api_version
+
+    coreMod = project.group + ".timezone.asm.TimeZoneCore"
 }
 
 task apiJar(type: Jar, dependsOn: sourceJar) {
