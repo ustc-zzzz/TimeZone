@@ -11,6 +11,8 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin
 class TimeZoneCore extends IFMLLoadingPlugin {
   override def getASMTransformerClass = Array(
     "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer",
+    "com.github.ustc_zzzz.timezone.asm.transformer.DoRenderTransformer",
+    "com.github.ustc_zzzz.timezone.asm.transformer.ItemClockTransformer",
     "com.github.ustc_zzzz.timezone.asm.transformer.TickUpdateTransformer",
     "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer",
     "com.github.ustc_zzzz.timezone.asm.transformer.TimeSyncTransformer",

@@ -64,6 +64,34 @@ object TimeZoneHooks {
     }
   }
 
+  def getClockAngleDiffDelegate(world: World) = {
+    val relativeAngle = world.getCelestialAngle(1F)
+    APIDelegate.pushLocation(APIDelegate.absolute())
+    val absoluteAngle = world.getCelestialAngle(1F)
+    APIDelegate.popLocation()
+    (relativeAngle - absoluteAngle).asInstanceOf[Double]
+  }
+
+  def preRenderEntityDelegate(e: Entity) = {
+    if (e != null) APIDelegate.pushLocation(APIDelegate.position(e))
+    ()
+  }
+
+  def postRenderEntityDelegate(e: Entity) = {
+    if (e != null) APIDelegate.popLocation()
+    ()
+  }
+
+  def preRenderTileEntityDelegate(te: TileEntity) = {
+    if (te != null && te.getPos != null) APIDelegate.pushLocation(APIDelegate.position(te.getPos))
+    ()
+  }
+
+  def postRenderTileEntityDelegate(te: TileEntity) = {
+    if (te != null && te.getPos != null) APIDelegate.popLocation()
+    ()
+  }
+
   def preBlockPosLightDelegate(world: World, pos: BlockPos) = {
     val event = new TimeZoneEvents.BlockPosLightEvent.Pre(pos)
     MinecraftForge.EVENT_BUS.post(event)
