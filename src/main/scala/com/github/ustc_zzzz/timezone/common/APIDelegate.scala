@@ -1,8 +1,8 @@
 package com.github.ustc_zzzz.timezone.common
 
 import java.util
-import java.util.Arrays
 import java.util.concurrent.Callable
+import java.util.concurrent.atomic.AtomicInteger
 
 import com.github.ustc_zzzz.timezone.api.TimeZoneAPI._
 import net.minecraft.entity.Entity
@@ -10,10 +10,10 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 object APIDelegate extends API {
-  var tickPMeterX = 60D
-  var tickPMeterZ = 0D
+  var tickPerMeterX = 60D
+  var tickPerMeterZ = 0D
 
-  protected case class LocationDelegate(x: Double, z: Double) extends Position {
+  case class LocationDelegate(x: Double, z: Double) extends Position {
     def getPosX: Int = Math.floor(x).asInstanceOf[Int]
 
     def getPosZ: Int = Math.floor(z).asInstanceOf[Int]
@@ -23,7 +23,7 @@ object APIDelegate extends API {
     def getZ: Double = z
   }
 
-  protected case object LocationRelative extends Position {
+  case object LocationRelative extends Position {
     def getPosX: Int = Math.floor(topX()).asInstanceOf[Int]
 
     def getPosZ: Int = Math.floor(topZ()).asInstanceOf[Int]
@@ -35,69 +35,75 @@ object APIDelegate extends API {
     override def toString = f"LocationRelative($getX,$getZ)"
   }
 
-  protected var pointer = 0
+  private class LocationStack {
+    var xStack = new Array[Double](64)
+    var zStack = new Array[Double](64)
 
-  protected var xStack = new Array[Double](64)
-  protected var zStack = new Array[Double](64)
+    var capacity = 64
+    var pointer = 0
+  }
 
-  protected var thread = new Array[Long](64)
+  private var size = new AtomicInteger(1)
 
-  protected def dt(dx: Double, dz: Double): Long = Math.round(tickPMeterX * dx + tickPMeterZ * dz)
+  private val locations = new ThreadLocal[LocationStack] {
+    override def initialValue = new LocationStack
+  }
 
-  protected def dtRelative(): Long = Math.round(tickPMeterX * topX + tickPMeterZ * topZ)
+  @inline
+  private def dt(dx: Double, dz: Double): Long = Math.round(tickPerMeterX * dx + tickPerMeterZ * dz)
 
-  protected def dtPosition(l: Position): Long = Math.round(tickPMeterX * l.getX + tickPMeterZ * l.getZ)
+  @inline
+  private def dtRelative(): Long = Math.round(tickPerMeterX * topX + tickPerMeterZ * topZ)
 
-  protected def doWith[T](x: Double, z: Double, f: () => T): T = try {
+  @inline
+  private def dtPosition(l: Position): Long = Math.round(tickPerMeterX * l.getX + tickPerMeterZ * l.getZ)
+
+  @inline
+  private def doWith[T](x: Double, z: Double, f: () => T): T = try {
     push(x, z)
     f()
   } finally pop()
 
-  protected def pop(): Position = synchronized {
-    val id = Thread.currentThread.getId
-    def getPointer(p: Int): Int = if (thread(p) == id || p == 0) p else getPointer(p - 1)
-    val p = getPointer(pointer)
-    val position = LocationDelegate(xStack(p), zStack(p))
-    if (p > 0) {
-      pointer -= 1
-      for (i <- p to pointer) {
-        xStack(i) = xStack(i + 1)
-        zStack(i) = zStack(i + 1)
-        thread(i) = thread(i + 1)
-      }
+  @inline
+  private def pop(): Position = {
+    val location = locations.get
+    val locationPointer = location.pointer
+    if (locationPointer > 0) {
+      location.pointer = locationPointer - 1
+      size.decrementAndGet
     }
-    position
+    LocationDelegate(location.xStack(locationPointer), location.zStack(locationPointer))
   }
 
-  protected def push(x: Double, z: Double): Unit = synchronized {
-    val id = Thread.currentThread.getId
-    pointer += 1
-    if (pointer >= thread.length) {
-      xStack = util.Arrays.copyOf(xStack, pointer + 32)
-      zStack = util.Arrays.copyOf(zStack, pointer + 32)
-      thread = util.Arrays.copyOf(thread, pointer + 32)
+  @inline
+  private def push(x: Double, z: Double): Unit = {
+    val location = locations.get
+    val locationPointer = location.pointer + 1
+    if (locationPointer >= location.capacity) {
+      location.xStack = util.Arrays.copyOf(location.xStack, locationPointer + 32)
+      location.zStack = util.Arrays.copyOf(location.zStack, locationPointer + 32)
     }
-    xStack(pointer) = x
-    zStack(pointer) = z
-    thread(pointer) = id
-    ()
+    location.xStack(locationPointer) = x
+    location.zStack(locationPointer) = z
+    location.pointer = locationPointer
+    size.incrementAndGet
   }
 
-  protected def topX(): Double = {
-    val id = Thread.currentThread.getId
-    def getFromPointer(p: Int): Double = if (thread(p) == id || p == 0) xStack(p) else getFromPointer(p - 1)
-    getFromPointer(pointer)
+  @inline
+  private def topX(): Double = {
+    val location = locations.get
+    location.xStack(location.pointer)
   }
 
-  protected def topZ(): Double = {
-    val id = Thread.currentThread.getId
-    def getFromPointer(p: Int): Double = if (thread(p) == id || p == 0) zStack(p) else getFromPointer(p - 1)
-    getFromPointer(pointer)
+  @inline
+  private def topZ(): Double = {
+    val location = locations.get
+    location.zStack(location.pointer)
   }
 
-  override def absolute() = LocationDelegate(0D, 0D)
+  override def absolute(): Position = LocationDelegate(0D, 0D)
 
-  override def relative() = LocationRelative
+  override def relative(): Position = LocationRelative
 
   override def position(entity: Entity) = LocationDelegate(entity.posX, entity.posZ)
 
@@ -135,5 +141,5 @@ object APIDelegate extends API {
 
   override def popLocation() = pop()
 
-  override def stackSize() = 1 + pointer
+  override def stackSize() = size.get
 }

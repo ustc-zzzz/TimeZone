@@ -21,8 +21,8 @@ class CommonProxy {
     tickPerChunkX.setValue(MathHelper.clamp(tickPerChunkX.getDouble, -12000D, 12000D))
     tickPerChunkZ.setValue(MathHelper.clamp(tickPerChunkZ.getDouble, -12000D, 12000D))
 
-    APIDelegate.tickPMeterX = tickPerChunkX.getDouble / 16
-    APIDelegate.tickPMeterZ = tickPerChunkZ.getDouble / 16
+    APIDelegate.tickPerMeterX = tickPerChunkX.getDouble / 16
+    APIDelegate.tickPerMeterZ = tickPerChunkZ.getDouble / 16
 
     config.save()
   }
