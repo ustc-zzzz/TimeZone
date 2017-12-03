@@ -1,21 +1,12 @@
 package com.github.ustc_zzzz.timezone
 
-import org.apache.logging.log4j.LogManager
-
 import com.github.ustc_zzzz.timezone.common.CommonProxy
-
-import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.Mod.Instance
-import net.minecraftforge.fml.common.SidedProxy
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import net.minecraftforge.fml.common.event.FMLInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
-import net.minecraftforge.fml.common.Mod.EventHandler
-import net.minecraftforge.fml.common.event.FMLConstructionEvent
-import com.github.ustc_zzzz.timezone.asm.TimeZoneTransformer
+import net.minecraftforge.fml.common.Mod.{EventHandler, Instance}
+import net.minecraftforge.fml.common.event._
+import net.minecraftforge.fml.common.{Mod, SidedProxy}
 
 @Mod(modid = TimeZone.modid, version = TimeZone.version, modLanguage = "scala",
-  acceptedMinecraftVersions = "1.10.2", dependencies = "required-after:timezone-core@")
+  acceptedMinecraftVersions = "1.10.2", dependencies = "required-after:timezonecore@")
 object TimeZone {
   final val modid = "timezone"
   final val version = "@version@"

@@ -1,27 +1,20 @@
 package com.github.ustc_zzzz.timezone.asm
 
-import org.apache.logging.log4j.LogManager
-
 import com.google.common.eventbus.EventBus
-
-import net.minecraftforge.fml.common.DummyModContainer
-import net.minecraftforge.fml.common.LoadController
-import net.minecraftforge.fml.common.ModMetadata
-import net.minecraftforge.fml.relauncher.IFMLCallHook
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin._
 import net.minecraft.launchwrapper.IClassTransformer
+import net.minecraftforge.fml.common.{DummyModContainer, LoadController, ModMetadata}
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin
 
-@Name("TimeZone")
-@MCVersion("1.10.2")
-@TransformerExclusions(Array("com.github.ustc_zzzz.timezone.asm."))
+@IFMLLoadingPlugin.Name("TimeZone")
+@IFMLLoadingPlugin.MCVersion("1.12.2")
+@IFMLLoadingPlugin.TransformerExclusions(Array("com.github.ustc_zzzz.timezone.asm."))
 class TimeZoneCore extends IFMLLoadingPlugin {
   override def getASMTransformerClass = Array(
-      "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer",
-      "com.github.ustc_zzzz.timezone.asm.transformer.TickUpdateTransformer",
-      "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer",
-      "com.github.ustc_zzzz.timezone.asm.transformer.TimeSyncTransformer",
-      "com.github.ustc_zzzz.timezone.asm.transformer.ViewTransformer")
+    "com.github.ustc_zzzz.timezone.asm.transformer.ControlTransformer",
+    "com.github.ustc_zzzz.timezone.asm.transformer.TickUpdateTransformer",
+    "com.github.ustc_zzzz.timezone.asm.transformer.TimeDelegateTransformer",
+    "com.github.ustc_zzzz.timezone.asm.transformer.TimeSyncTransformer",
+    "com.github.ustc_zzzz.timezone.asm.transformer.ViewTransformer")
 
   override def getAccessTransformerClass = "com.github.ustc_zzzz.timezone.asm.TimeZoneAccessTransformer"
 
@@ -37,7 +30,7 @@ class TimeZoneCore extends IFMLLoadingPlugin {
 class TimeZoneModContainer extends DummyModContainer(new ModMetadata) {
   final val metadata = getMetadata
 
-  metadata.modId = "timezone-core"
+  metadata.modId = "timezonecore"
   metadata.name = "TimeZone Core"
   metadata.version = "@version@"
   metadata.authorList = java.util.Arrays asList "ustc_zzzz"
@@ -50,6 +43,6 @@ class TimeZoneModContainer extends DummyModContainer(new ModMetadata) {
 class TimeZoneAccessTransformer extends IClassTransformer {
   TimeZoneTransformer.logger.info("Coremod version @version@")
   TimeZoneTransformer.loadClasses
-  
+
   override def transform(name: String, transformedName: String, basicClass: Array[Byte]) = basicClass
 }

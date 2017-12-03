@@ -1,12 +1,8 @@
 package com.github.ustc_zzzz.timezone.client
 
 import com.github.ustc_zzzz.timezone.common.CommonProxy
-
-import net.minecraftforge.fml.common.event.FMLInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import net.minecraftforge.fml.relauncher.SideOnly
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.fml.common.event.{FMLInitializationEvent, FMLPostInitializationEvent, FMLPreInitializationEvent}
+import net.minecraftforge.fml.relauncher.{Side, SideOnly}
 
 @SideOnly(Side.CLIENT)
 class ClientProxy extends CommonProxy {

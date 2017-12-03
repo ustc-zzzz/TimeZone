@@ -1,10 +1,10 @@
 package com.github.ustc_zzzz.timezone.common
 
+import java.util
 import java.util.Arrays
 import java.util.concurrent.Callable
 
 import com.github.ustc_zzzz.timezone.api.TimeZoneAPI._
-
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -15,16 +15,23 @@ object APIDelegate extends API {
 
   protected case class LocationDelegate(x: Double, z: Double) extends Position {
     def getPosX: Int = Math.floor(x).asInstanceOf[Int]
+
     def getPosZ: Int = Math.floor(z).asInstanceOf[Int]
+
     def getX: Double = x
+
     def getZ: Double = z
   }
 
   protected case object LocationRelative extends Position {
-    def getPosX: Int = Math.floor(topX).asInstanceOf[Int]
-    def getPosZ: Int = Math.floor(topZ).asInstanceOf[Int]
-    def getX: Double = topX
-    def getZ: Double = topZ
+    def getPosX: Int = Math.floor(topX()).asInstanceOf[Int]
+
+    def getPosZ: Int = Math.floor(topZ()).asInstanceOf[Int]
+
+    def getX: Double = topX()
+
+    def getZ: Double = topZ()
+
     override def toString = f"LocationRelative($getX,$getZ)"
   }
 
@@ -35,13 +42,16 @@ object APIDelegate extends API {
 
   protected var thread = new Array[Long](64)
 
-  protected def doWith[T](x: Double, z: Double, f: () => T): T = try { push(x, z); f() } finally pop
-
   protected def dt(dx: Double, dz: Double): Long = Math.round(tickPMeterX * dx + tickPMeterZ * dz)
 
-  protected def dtr(): Long = Math.round(tickPMeterX * topX + tickPMeterZ * topZ)
+  protected def dtRelative(): Long = Math.round(tickPMeterX * topX + tickPMeterZ * topZ)
 
-  protected def dtp(l: Position): Long = Math.round(tickPMeterX * l.getX + tickPMeterZ * l.getZ)
+  protected def dtPosition(l: Position): Long = Math.round(tickPMeterX * l.getX + tickPMeterZ * l.getZ)
+
+  protected def doWith[T](x: Double, z: Double, f: () => T): T = try {
+    push(x, z)
+    f()
+  } finally pop()
 
   protected def pop(): Position = synchronized {
     val id = Thread.currentThread.getId
@@ -63,9 +73,9 @@ object APIDelegate extends API {
     val id = Thread.currentThread.getId
     pointer += 1
     if (pointer >= thread.length) {
-      xStack = Arrays.copyOf(xStack, pointer + 32)
-      zStack = Arrays.copyOf(zStack, pointer + 32)
-      thread = Arrays.copyOf(thread, pointer + 32)
+      xStack = util.Arrays.copyOf(xStack, pointer + 32)
+      zStack = util.Arrays.copyOf(zStack, pointer + 32)
+      thread = util.Arrays.copyOf(thread, pointer + 32)
     }
     xStack(pointer) = x
     zStack(pointer) = z
@@ -99,23 +109,23 @@ object APIDelegate extends API {
 
   override def getRelativeTime(world: World) = world.getWorldTime
 
-  override def getAbsoluteTime(world: World) = world.getWorldTime - dtr
+  override def getAbsoluteTime(world: World) = world.getWorldTime - dtRelative
 
-  override def getTime(l: Position, world: World) = world.getWorldTime - dtr + dtp(l)
+  override def getTime(l: Position, world: World) = world.getWorldTime - dtRelative + dtPosition(l)
 
   override def setRelativeTime(world: World, relativeTime: Long) = world.setWorldTime(relativeTime)
 
-  override def setAbsoluteTime(world: World, absoluteTime: Long) = world.setWorldTime(absoluteTime + dtr)
+  override def setAbsoluteTime(world: World, absoluteTime: Long) = world.setWorldTime(absoluteTime + dtRelative)
 
-  override def setTime(l: Position, world: World, time: Long) = world.setWorldTime(time + dtr - dtp(l))
+  override def setTime(l: Position, world: World, time: Long) = world.setWorldTime(time + dtRelative - dtPosition(l))
 
-  override def timeDiffFromRelativeToAbsolute() = dtr
+  override def timeDiffFromRelativeToAbsolute() = dtRelative()
 
-  override def timeDiffFromRelative(lBase: Position) = dtr - dtp(lBase)
+  override def timeDiffFromRelative(lBase: Position) = dtRelative - dtPosition(lBase)
 
-  override def timeDiffToAbsoulte(l: Position) = dtp(l)
+  override def timeDiffToAbsolute(l: Position) = dtPosition(l)
 
-  override def timeDiff(l: Position, lBase: Position) = dtp(l) - dtp(lBase)
+  override def timeDiff(l: Position, lBase: Position) = dtPosition(l) - dtPosition(lBase)
 
   override def doWithLocation(l: Position, r: Runnable) = doWith(l.getX, l.getZ, r.run)
 
@@ -123,7 +133,7 @@ object APIDelegate extends API {
 
   override def pushLocation(l: Position) = push(l.getX, l.getZ)
 
-  override def popLocation() = pop
+  override def popLocation() = pop()
 
   override def stackSize() = 1 + pointer
 }
